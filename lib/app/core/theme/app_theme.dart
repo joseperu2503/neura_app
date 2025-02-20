@@ -6,7 +6,7 @@ class AppTheme {
     return ThemeData(
       fontFamily: 'Mulish',
       brightness: Brightness.light,
-      scaffoldBackgroundColor: AppColors.white,
+      scaffoldBackgroundColor: AppColors.dark1,
       appBarTheme: const AppBarTheme(backgroundColor: AppColors.white),
       useMaterial3: true,
       colorScheme: ColorScheme.fromSwatch(
