@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:neura_app/app/core/constants/app_colors.dart';
+import 'package:neura_app/app/di.dart';
+import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_message.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/user_message.dart';
 
@@ -12,6 +14,15 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final ChatRepository repository = getIt<ChatRepository>();
+  final TextEditingController textController = TextEditingController();
+
+  completion() async {
+    print(textController.text);
+    final String chatId = await repository.createChatGuest();
+    print(chatId);
+  }
+
   final List<Message> messages = [
     Message(
       role: 'user',
@@ -55,7 +66,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 SizedBox(width: 16),
-                SvgPicture.asset('assets/icons/neura_text_white.svg', height: 16),
+                SvgPicture.asset(
+                  'assets/icons/neura_text_white.svg',
+                  height: 16,
+                ),
               ],
             ),
           ),
@@ -106,6 +120,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Column(
                 children: [
                   TextField(
+                    controller: textController,
                     style: TextStyle(
                       color: AppColors.neutralOffWhite,
                       fontSize: 16,
@@ -132,7 +147,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: 32,
                         height: 32,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            completion();
+                          },
                           style: TextButton.styleFrom(
                             backgroundColor: AppColors.primary2,
                             disabledBackgroundColor: AppColors.dark8,
