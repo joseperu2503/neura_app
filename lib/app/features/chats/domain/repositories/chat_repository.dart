@@ -1,3 +1,3 @@
 abstract class ChatRepository {
-  Future<String> createChatGuest();
+  Future<String> createGuestChat();
 }

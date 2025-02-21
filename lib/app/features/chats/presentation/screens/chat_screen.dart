@@ -19,7 +19,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   completion() async {
     print(textController.text);
-    final String chatId = await repository.createChatGuest();
+    final String chatId = await repository.createGuestChat();
     print(chatId);
   }
 

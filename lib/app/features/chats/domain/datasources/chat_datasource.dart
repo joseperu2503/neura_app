@@ -1,3 +1,3 @@
 abstract class ChatDatasource {
-  Future<String> createChatGuest();
+  Future<String> createGuestChat();
 }

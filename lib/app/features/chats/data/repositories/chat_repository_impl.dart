@@ -7,7 +7,7 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl(this.datasource);
 
   @override
-  Future<String> createChatGuest() {
-    return datasource.createChatGuest();
+  Future<String> createGuestChat() {
+    return datasource.createGuestChat();
   }
 }

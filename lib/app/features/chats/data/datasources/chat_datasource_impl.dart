@@ -4,7 +4,7 @@ import 'package:neura_app/app/features/chats/domain/datasources/chat_datasource.
 
 class ChatDatasourceImpl implements ChatDatasource {
   @override
-  Future<String> createChatGuest() async {
+  Future<String> createGuestChat() async {
     try {
       final response = await Api.post('/chats/guest');
 
