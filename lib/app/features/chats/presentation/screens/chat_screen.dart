@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:neura_app/app/core/constants/app_colors.dart';
+import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
 import 'package:neura_app/di.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
@@ -128,7 +129,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     left: 16,
                     right: 16,
                     top: 24,
-                    bottom: 16,
+                    bottom: 24,
                   ),
                   sliver: SliverList.separated(
                     itemBuilder: (context, index) {
@@ -145,6 +146,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     itemCount: _messages.length,
                   ),
                 ),
+                if (_loading)
+                  SliverPadding(
+                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                    sliver: SliverToBoxAdapter(
+                      child: Row(children: [AssistantTyping()]),
+                    ),
+                  ),
               ],
             ),
           ),
