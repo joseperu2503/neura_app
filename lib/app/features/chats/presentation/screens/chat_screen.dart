@@ -17,8 +17,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final ChatRepository _repository = getIt<ChatRepository>();
   final TextEditingController _textController = TextEditingController();
-  bool _loading = false;
   final ScrollController _scrollController = ScrollController();
+  bool _loading = false;
   List<Message> _messages = [];
 
   @override
@@ -49,8 +49,6 @@ class _ChatScreenState extends State<ChatScreen> {
         .guestCompletion(chatId: chatId, content: content)
         .listen(
           (chunk) {
-            // print("Chunk recibido: $chunk");
-
             _addMessage(
               message: Message(
                 role: 'assistant',
@@ -111,19 +109,9 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                SvgPicture.asset(
-                  'assets/icons/menu.svg',
-                  width: 24,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.white,
-                    BlendMode.srcIn,
-                  ),
-                ),
-                SizedBox(width: 16),
-                SvgPicture.asset(
-                  'assets/icons/neura_text_white.svg',
-                  height: 16,
-                ),
+                SvgPicture.asset('assets/icons/neura.svg', width: 24),
+                SizedBox(width: 12),
+                SvgPicture.asset('assets/icons/neura_text.svg', height: 16),
               ],
             ),
           ),
