@@ -38,4 +38,13 @@ class Api {
     _dioBase.interceptors.add(_interceptor);
     return _dioBase.delete(path);
   }
+
+  static Future<Response> postStream(String path, {Object? data}) async {
+    _dioBase.interceptors.add(_interceptor);
+    return _dioBase.post(
+      path,
+      data: data,
+      options: Options(responseType: ResponseType.stream),
+    );
+  }
 }

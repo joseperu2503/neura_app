@@ -10,4 +10,12 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<String> createGuestChat() {
     return datasource.createGuestChat();
   }
+
+  @override
+  Stream<String> guestCompletion({
+    required String chatId,
+    required String content,
+  }) {
+    return datasource.guestCompletion(chatId: chatId, content: content);
+  }
 }

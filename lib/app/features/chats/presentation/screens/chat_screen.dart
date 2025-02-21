@@ -21,6 +21,20 @@ class _ChatScreenState extends State<ChatScreen> {
     print(textController.text);
     final String chatId = await repository.createGuestChat();
     print(chatId);
+
+    repository
+        .guestCompletion(chatId: chatId, content: "Conoces peru?")
+        .listen(
+          (chunk) {
+            print("Chunk recibido: $chunk");
+          },
+          onDone: () {
+            print("Streaming completado.");
+          },
+          onError: (error) {
+            print("Error en el streaming: $error");
+          },
+        );
   }
 
   final List<Message> messages = [
