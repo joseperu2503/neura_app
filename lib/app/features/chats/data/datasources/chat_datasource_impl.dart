@@ -31,7 +31,7 @@ class ChatDatasourceImpl implements ChatDatasource {
     try {
       final Map<String, dynamic> body = {
         "chatId": chatId,
-        "content": "Conoces peru?",
+        "content": content, // Asegúrate de usar el parámetro
       };
 
       Response<dynamic> response = await Api.postStream(
@@ -40,9 +40,12 @@ class ChatDatasourceImpl implements ChatDatasource {
       );
       Stream<List<int>> stream = response.data!.stream;
 
+      String accumulatedText = ""; // 🔹 Acumulador de chunks
+
       await for (var chunk in stream) {
         String decoded = utf8.decode(chunk);
-        yield decoded;
+        accumulatedText += decoded; // 🔹 Concatenamos el nuevo chunk
+        yield accumulatedText; // 🔹 Emitimos el texto acumulado
       }
     } catch (e) {
       throw Exception('An error occurred');

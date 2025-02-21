@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:neura_app/app/core/constants/app_colors.dart';
 import 'package:neura_app/app/di.dart';
+import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_message.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/user_message.dart';
@@ -16,17 +17,53 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final ChatRepository repository = getIt<ChatRepository>();
   final TextEditingController textController = TextEditingController();
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
 
   completion() async {
     print(textController.text);
+    final String content = textController.text.trim();
+    setState(() {
+      messages = [
+        ...messages,
+        Message(role: 'user', content: content, createdAt: DateTime.now()),
+      ];
+
+      loading = true;
+      textController.text = '';
+    });
     final String chatId = await repository.createGuestChat();
-    print(chatId);
 
     repository
-        .guestCompletion(chatId: chatId, content: "Conoces peru?")
+        .guestCompletion(chatId: chatId, content: content)
         .listen(
           (chunk) {
-            print("Chunk recibido: $chunk");
+            // print("Chunk recibido: $chunk");
+
+            addMessage(
+              message: Message(
+                role: 'assistant',
+                content: chunk,
+                createdAt: DateTime.now(),
+              ),
+              pop: !loading,
+            );
+
+            if (loading) {
+              setState(() {
+                loading = false;
+              });
+            }
           },
           onDone: () {
             print("Streaming completado.");
@@ -37,26 +74,16 @@ class _ChatScreenState extends State<ChatScreen> {
         );
   }
 
-  final List<Message> messages = [
-    Message(
-      role: 'user',
-      content: 'Hola como estas',
-      createdAt: DateTime.now(),
-    ),
+  addMessage({required Message message, bool pop = false}) {
+    setState(() {
+      if (pop && messages.isNotEmpty) {
+        messages.removeLast(); // 🔹 Elimina el último mensaje si `pop` es true
+      }
+      messages = [...messages, message];
+    });
+  }
 
-    Message(
-      role: 'assistant',
-      content:
-          "### Comparación entre una moto y un carro\n\n#### **Pros de una moto:**\n1. **Menor costo de compra:** Las motos suelen ser más económicas que los carros.\n2. **Ahorro de combustible:** Consumen menos gasolina, lo que reduce los gastos diarios.\n3. **Facilidad de estacionamiento:** Ocupan menos espacio y es más fácil encontrar lugar para estacionar.\n4. **Movilidad en el tráfico:** Pueden filtrarse entre el tráfico, lo que reduce el tiempo de viaje en ciudades congestionadas.\n5. **Mantenimiento más económico:** Los costos de mantenimiento y reparación suelen ser menores.\n6. **Experiencia de conducción:** Ofrecen una sensación de libertad y conexión con el entorno.\n\n#### **Contras de una moto:**\n1. **Menor seguridad:** Son más vulnerables en accidentes y no ofrecen protección contra el clima o impactos.\n2. **Limitación de pasajeros:** Generalmente solo pueden transportar a una o dos personas.\n3. **Exposición a las condiciones climáticas:** No protegen de la lluvia, el frío o el calor extremo.\n4. **Menor capacidad de carga:** No son prácticas para transportar objetos grandes o muchas cosas.\n5. **Mayor riesgo de robo:** Las motos son más fáciles de robar que los carros.\n\n---\n\n#### **Pros de un carro:**\n1. **Mayor seguridad:** Ofrecen protección en caso de accidentes y están equipados con sistemas de seguridad como airbags y cinturones.\n2. **Comodidad:** Protegen de las condiciones climáticas y ofrecen espacio para pasajeros y carga.\n3. **Capacidad de pasajeros:** Pueden transportar a más personas, ideal para familias o grupos.\n4. **Mayor capacidad de carga:** Tienen espacio para maletas, compras o equipos grandes.\n5. **Confort:** Cuentan con sistemas de climatización, asientos cómodos y tecnología avanzada.\n\n#### **Contras de un carro:**\n1. **Costo de compra más alto:** Los carros suelen ser más caros que las motos.\n2. **Mayor consumo de combustible:** Gastan más gas",
-      createdAt: DateTime.now(),
-    ),
-    Message(
-      role: 'user',
-      content:
-          'Para darle un color de fondo (background-color) a un checkbox, no puedes hacerlo directamente con CSS estándar, ya que los checkboxes son elementos de entrada nativos del navegador y su apariencia está',
-      createdAt: DateTime.now(),
-    ),
-  ];
+  List<Message> messages = [];
 
   @override
   Widget build(BuildContext context) {
@@ -160,23 +187,34 @@ class _ChatScreenState extends State<ChatScreen> {
                       Container(
                         width: 32,
                         height: 32,
-                        child: TextButton(
-                          onPressed: () {
-                            completion();
+                        child: ValueListenableBuilder(
+                          valueListenable: textController,
+
+                          builder: (context, value, child) {
+                            return TextButton(
+                              onPressed:
+                                  textController.text == ''
+                                      ? null
+                                      : () {
+                                        completion();
+                                      },
+                              style: TextButton.styleFrom(
+                                backgroundColor: AppColors.primary2,
+                                disabledBackgroundColor: AppColors.dark8,
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: SvgPicture.asset(
+                                'assets/icons/send.svg',
+                                width: 20,
+                                colorFilter: ColorFilter.mode(
+                                  textController.text == ''
+                                      ? AppColors.dark4
+                                      : AppColors.white,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                            );
                           },
-                          style: TextButton.styleFrom(
-                            backgroundColor: AppColors.primary2,
-                            disabledBackgroundColor: AppColors.dark8,
-                            padding: EdgeInsets.zero,
-                          ),
-                          child: SvgPicture.asset(
-                            'assets/icons/send.svg',
-                            width: 20,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.white,
-                              BlendMode.srcIn,
-                            ),
-                          ),
                         ),
                       ),
                     ],
@@ -189,12 +227,4 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-}
-
-class Message {
-  final String role;
-  final String content;
-  final DateTime createdAt;
-
-  Message({required this.role, required this.content, required this.createdAt});
 }
