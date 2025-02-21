@@ -21,16 +21,16 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white38,
           padding: EdgeInsets.zero,
-          backgroundColor: AppColors.brandColorDefault,
+          backgroundColor: AppColors.primary,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
-          disabledBackgroundColor: AppColors.neutralLine,
+          disabledBackgroundColor: AppColors.dark5,
         ),
       ),
       textSelectionTheme: const TextSelectionThemeData(
-        cursorColor: AppColors.brandColorDefault,
+        cursorColor: AppColors.primary,
       ),
       dialogTheme: DialogThemeData(backgroundColor: AppColors.white),
     );

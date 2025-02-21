@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:neura_app/app/core/constants/app_colors.dart';
-import 'package:neura_app/app/di.dart';
+import 'package:neura_app/di.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_message.dart';
@@ -15,9 +15,11 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final ChatRepository repository = getIt<ChatRepository>();
-  final TextEditingController textController = TextEditingController();
-  bool loading = false;
+  final ChatRepository _repository = getIt<ChatRepository>();
+  final TextEditingController _textController = TextEditingController();
+  bool _loading = false;
+  final ScrollController _scrollController = ScrollController();
+  List<Message> _messages = [];
 
   @override
   void initState() {
@@ -26,42 +28,41 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    textController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
   completion() async {
-    print(textController.text);
-    final String content = textController.text.trim();
+    final String content = _textController.text.trim();
     setState(() {
-      messages = [
-        ...messages,
+      _messages = [
+        ..._messages,
         Message(role: 'user', content: content, createdAt: DateTime.now()),
       ];
 
-      loading = true;
-      textController.text = '';
+      _loading = true;
+      _textController.text = '';
     });
-    final String chatId = await repository.createGuestChat();
+    final String chatId = await _repository.createGuestChat();
 
-    repository
+    _repository
         .guestCompletion(chatId: chatId, content: content)
         .listen(
           (chunk) {
             // print("Chunk recibido: $chunk");
 
-            addMessage(
+            _addMessage(
               message: Message(
                 role: 'assistant',
                 content: chunk,
                 createdAt: DateTime.now(),
               ),
-              pop: !loading,
+              pop: !_loading,
             );
 
-            if (loading) {
+            if (_loading) {
               setState(() {
-                loading = false;
+                _loading = false;
               });
             }
           },
@@ -74,16 +75,28 @@ class _ChatScreenState extends State<ChatScreen> {
         );
   }
 
-  addMessage({required Message message, bool pop = false}) {
+  void _addMessage({required Message message, bool pop = false}) {
     setState(() {
-      if (pop && messages.isNotEmpty) {
-        messages.removeLast(); // 🔹 Elimina el último mensaje si `pop` es true
+      if (pop && _messages.isNotEmpty) {
+        _messages.removeLast(); // 🔹 Elimina el último mensaje si `pop` es true
       }
-      messages = [...messages, message];
+      _messages = [..._messages, message];
+    });
+
+    Future.delayed(Duration(milliseconds: 100), () {
+      _scrollToBottom();
     });
   }
 
-  List<Message> messages = [];
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: CustomScrollView(
+              controller: _scrollController,
               slivers: [
                 SliverPadding(
                   padding: EdgeInsets.only(
@@ -130,9 +144,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   sliver: SliverList.separated(
                     itemBuilder: (context, index) {
-                      final message = messages[index];
+                      final message = _messages[index];
                       if (message.role == 'user') {
-                        return UserMessage(content: messages[index].content);
+                        return UserMessage(content: _messages[index].content);
                       }
 
                       return AssistantMessage(content: message.content);
@@ -140,7 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     separatorBuilder: (context, index) {
                       return SizedBox(height: 24);
                     },
-                    itemCount: messages.length,
+                    itemCount: _messages.length,
                   ),
                 ),
               ],
@@ -161,12 +175,12 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Column(
                 children: [
                   TextField(
-                    controller: textController,
+                    controller: _textController,
                     style: TextStyle(
-                      color: AppColors.neutralOffWhite,
+                      color: AppColors.white,
                       fontSize: 16,
-                      height: 24 / 16,
-                      fontWeight: FontWeight.w600,
+                      height: 1.5,
+                      fontWeight: FontWeight.w400,
                     ),
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(
@@ -177,23 +191,31 @@ class _ChatScreenState extends State<ChatScreen> {
                         right: 0,
                         top: 16,
                       ),
+                      hintText: 'Ask Neura anything',
+                      hintStyle: TextStyle(
+                        color: AppColors.dark6,
+                        fontSize: 16,
+                        height: 1.5,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
+
                     minLines: 1,
                     maxLines: 8,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 32,
                         height: 32,
                         child: ValueListenableBuilder(
-                          valueListenable: textController,
+                          valueListenable: _textController,
 
                           builder: (context, value, child) {
                             return TextButton(
                               onPressed:
-                                  textController.text == ''
+                                  _textController.text == ''
                                       ? null
                                       : () {
                                         completion();
@@ -207,7 +229,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 'assets/icons/send.svg',
                                 width: 20,
                                 colorFilter: ColorFilter.mode(
-                                  textController.text == ''
+                                  _textController.text == ''
                                       ? AppColors.dark4
                                       : AppColors.white,
                                   BlendMode.srcIn,

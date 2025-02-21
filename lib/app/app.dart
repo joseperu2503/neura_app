@@ -15,13 +15,10 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    print('build');
-
     return LayoutBuilder(
       builder: (context, constraints) {
         // Actualizamos el router si es necesario
         _routerManager.updateRouter(context);
-        print('LayoutBuilder');
 
         return GetMaterialApp.router(
           title: 'Neura',
