@@ -46,32 +46,30 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     final String chatId = await _repository.createGuestChat();
 
-    _repository
-        .guestCompletion(chatId: chatId, content: content)
-        .listen(
-          (chunk) {
-            _addMessage(
-              message: Message(
-                role: 'assistant',
-                content: chunk,
-                createdAt: DateTime.now(),
-              ),
-              pop: !_loading,
-            );
-
-            if (_loading) {
-              setState(() {
-                _loading = false;
-              });
-            }
-          },
-          onDone: () {
-            print("Streaming completado.");
-          },
-          onError: (error) {
-            print("Error en el streaming: $error");
-          },
+    _repository.guestCompletion(chatId: chatId, content: content).listen(
+      (chunk) {
+        _addMessage(
+          message: Message(
+            role: 'assistant',
+            content: chunk,
+            createdAt: DateTime.now(),
+          ),
+          pop: !_loading,
         );
+
+        if (_loading) {
+          setState(() {
+            _loading = false;
+          });
+        }
+      },
+      onDone: () {
+        print("Streaming completado.");
+      },
+      onError: (error) {
+        print("Error en el streaming: $error");
+      },
+    );
   }
 
   void _addMessage({required Message message, bool pop = false}) {
@@ -160,7 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
             decoration: BoxDecoration(color: AppColors.dark1),
             child: Container(
               padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).padding.bottom,
+                bottom: MediaQuery.of(context).padding.bottom + 12,
                 left: 16,
                 right: 16,
               ),
@@ -195,7 +193,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-
                     minLines: 1,
                     maxLines: 8,
                   ),
@@ -207,15 +204,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         height: 32,
                         child: ValueListenableBuilder(
                           valueListenable: _textController,
-
                           builder: (context, value, child) {
                             return TextButton(
-                              onPressed:
-                                  _textController.text == ''
-                                      ? null
-                                      : () {
-                                        completion();
-                                      },
+                              onPressed: _textController.text == ''
+                                  ? null
+                                  : () {
+                                      completion();
+                                    },
                               style: TextButton.styleFrom(
                                 backgroundColor: AppColors.primary2,
                                 disabledBackgroundColor: AppColors.dark8,
