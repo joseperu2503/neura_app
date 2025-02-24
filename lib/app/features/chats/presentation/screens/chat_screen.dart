@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:neura_app/app/core/constants/app_colors.dart';
+import 'package:neura_app/app/core/constants/storage_keys.dart';
+import 'package:neura_app/app/core/services/storage_service.dart';
+import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
 import 'package:neura_app/di.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
@@ -20,11 +23,12 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _loading = false;
-  List<Message> _messages = [];
+  Chat? _chat;
 
   @override
   void initState() {
     super.initState();
+    getChat();
   }
 
   @override
@@ -33,20 +37,40 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  getChat() async {
+    final String? chatId = await StorageService.get<String>(StorageKeys.chatId);
+
+    if (chatId == null) return;
+
+    _chat = await _repository.getGuestChat(chatId: chatId);
+
+    setState(() {
+      _chat = _chat;
+    });
+  }
+
   completion() async {
     final String content = _textController.text.trim();
+
     setState(() {
-      _messages = [
-        ..._messages,
-        Message(role: 'user', content: content, createdAt: DateTime.now()),
-      ];
-
       _loading = true;
-      _textController.text = '';
     });
-    final String chatId = await _repository.createGuestChat();
 
-    _repository.guestCompletion(chatId: chatId, content: content).listen(
+    if (_chat == null) {
+      _chat = await _repository.createGuestChat();
+
+      StorageService.set(StorageKeys.chatId, _chat!.id);
+    }
+
+    setState(() {
+      _textController.text = '';
+      _chat = _chat!.copyWith(messages: [
+        ..._chat!.messages,
+        Message(role: 'user', content: content, createdAt: DateTime.now()),
+      ]);
+    });
+
+    _repository.guestCompletion(chatId: _chat!.id, content: content).listen(
       (chunk) {
         _addMessage(
           message: Message(
@@ -74,10 +98,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _addMessage({required Message message, bool pop = false}) {
     setState(() {
-      if (pop && _messages.isNotEmpty) {
-        _messages.removeLast(); // 🔹 Elimina el último mensaje si `pop` es true
+      if (pop && _chat!.messages.isNotEmpty) {
+        _chat = _chat!.copyWith(
+          messages: List.from(_chat!.messages)..removeLast(),
+        );
       }
-      _messages = [..._messages, message];
+
+      _chat = _chat!.copyWith(messages: [
+        ..._chat!.messages,
+        message,
+      ]);
     });
 
     Future.delayed(Duration(milliseconds: 100), () {
@@ -118,42 +148,48 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          Expanded(
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverPadding(
-                  padding: EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 24,
-                    bottom: 24,
-                  ),
-                  sliver: SliverList.separated(
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
-                      if (message.role == 'user') {
-                        return UserMessage(content: _messages[index].content);
-                      }
-
-                      return AssistantMessage(content: message.content);
-                    },
-                    separatorBuilder: (context, index) {
-                      return SizedBox(height: 24);
-                    },
-                    itemCount: _messages.length,
-                  ),
-                ),
-                if (_loading)
+          if (_chat == null)
+            Expanded(
+              child: Center(),
+            ),
+          if (_chat != null)
+            Expanded(
+              child: CustomScrollView(
+                controller: _scrollController,
+                slivers: [
                   SliverPadding(
-                    padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                    sliver: SliverToBoxAdapter(
-                      child: Row(children: [AssistantTyping()]),
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 24,
+                      bottom: 24,
+                    ),
+                    sliver: SliverList.separated(
+                      itemBuilder: (context, index) {
+                        final message = _chat!.messages[index];
+                        if (message.role == 'user') {
+                          return UserMessage(
+                              content: _chat!.messages[index].content);
+                        }
+
+                        return AssistantMessage(content: message.content);
+                      },
+                      separatorBuilder: (context, index) {
+                        return SizedBox(height: 24);
+                      },
+                      itemCount: _chat!.messages.length,
                     ),
                   ),
-              ],
+                  if (_loading)
+                    SliverPadding(
+                      padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                      sliver: SliverToBoxAdapter(
+                        child: Row(children: [AssistantTyping()]),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
           Container(
             decoration: BoxDecoration(color: AppColors.dark1),
             child: Container(

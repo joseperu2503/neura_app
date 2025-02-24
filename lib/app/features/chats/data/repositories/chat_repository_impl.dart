@@ -1,4 +1,5 @@
 import 'package:neura_app/app/features/chats/domain/datasources/chat_datasource.dart';
+import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
@@ -7,7 +8,7 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl(this.datasource);
 
   @override
-  Future<String> createGuestChat() {
+  Future<Chat> createGuestChat() {
     return datasource.createGuestChat();
   }
 
@@ -17,5 +18,10 @@ class ChatRepositoryImpl implements ChatRepository {
     required String content,
   }) {
     return datasource.guestCompletion(chatId: chatId, content: content);
+  }
+
+  @override
+  Future<Chat> getGuestChat({required String chatId}) {
+    return datasource.getGuestChat(chatId: chatId);
   }
 }
