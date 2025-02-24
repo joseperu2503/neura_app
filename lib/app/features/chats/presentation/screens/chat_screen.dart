@@ -22,7 +22,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatRepository _repository = getIt<ChatRepository>();
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _loading = false;
+  bool _createChatLoading = false;
+  bool _completionLoading = false;
+
   Chat? _chat;
 
   @override
@@ -47,28 +49,37 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _chat = _chat;
     });
+
+    _scrollToBottom();
   }
 
   completion() async {
     final String content = _textController.text.trim();
 
-    setState(() {
-      _loading = true;
-    });
-
     if (_chat == null) {
+      setState(() {
+        _createChatLoading = true;
+      });
       _chat = await _repository.createGuestChat();
 
       StorageService.set(StorageKeys.chatId, _chat!.id);
+
+      setState(() {
+        _createChatLoading = false;
+      });
     }
 
     setState(() {
+      _completionLoading = true;
+
       _textController.text = '';
       _chat = _chat!.copyWith(messages: [
         ..._chat!.messages,
         Message(role: 'user', content: content, createdAt: DateTime.now()),
       ]);
     });
+
+    _scrollToBottom();
 
     _repository.guestCompletion(chatId: _chat!.id, content: content).listen(
       (chunk) {
@@ -78,12 +89,12 @@ class _ChatScreenState extends State<ChatScreen> {
             content: chunk,
             createdAt: DateTime.now(),
           ),
-          pop: !_loading,
+          pop: !_completionLoading,
         );
 
-        if (_loading) {
+        if (_completionLoading) {
           setState(() {
-            _loading = false;
+            _completionLoading = false;
           });
         }
       },
@@ -110,19 +121,19 @@ class _ChatScreenState extends State<ChatScreen> {
       ]);
     });
 
-    Future.delayed(Duration(milliseconds: 100), () {
-      _scrollToBottom();
-    });
+    _scrollToBottom();
   }
 
   void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
@@ -180,7 +191,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       itemCount: _chat!.messages.length,
                     ),
                   ),
-                  if (_loading)
+                  if (_completionLoading)
                     SliverPadding(
                       padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
                       sliver: SliverToBoxAdapter(
