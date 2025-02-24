@@ -25,7 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _createChatLoading = false;
   bool _completionLoading = false;
-  ScrollPhysics _scrollPhysics = NeverScrollableScrollPhysics();
+  ScrollPhysics _scrollPhysics = const NeverScrollableScrollPhysics();
 
   Chat? _chat;
 
@@ -66,7 +66,15 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _createChatLoading = true;
       });
-      _chat = await _repository.createGuestChat();
+
+      try {
+        _chat = await _repository.createGuestChat();
+      } catch (e) {
+        setState(() {
+          _createChatLoading = false;
+        });
+        SnackbarService.show(e.toString(), type: SnackbarType.error);
+      }
 
       StorageService.set(StorageKeys.chatId, _chat!.id);
 
@@ -136,15 +144,15 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_scrollController.hasClients) {
         setState(() {
-          _scrollPhysics = ClampingScrollPhysics();
+          _scrollPhysics = const ClampingScrollPhysics();
         });
         await _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
         setState(() {
-          _scrollPhysics = BouncingScrollPhysics();
+          _scrollPhysics = const BouncingScrollPhysics();
         });
       }
     });
@@ -153,6 +161,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void newChat() {
     setState(() {
       _chat = null;
+      _textController.text = '';
+      StorageService.remove(StorageKeys.chatId);
     });
   }
 
@@ -166,13 +176,13 @@ class _ChatScreenState extends State<ChatScreen> {
         flexibleSpace: SafeArea(
           child: Container(
             height: 60,
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 SvgPicture.asset('assets/icons/neura.svg', width: 24),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 SvgPicture.asset('assets/icons/neura_text.svg', height: 16),
-                Spacer(),
+                const Spacer(),
                 SizedBox(
                   width: 32,
                   height: 32,
@@ -186,7 +196,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: SvgPicture.asset(
                       'assets/icons/new-chat.svg',
                       width: 24,
-                      colorFilter: ColorFilter.mode(
+                      colorFilter: const ColorFilter.mode(
                         AppColors.white,
                         BlendMode.srcIn,
                       ),
@@ -202,7 +212,45 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           if (_chat == null)
             Expanded(
-              child: Center(),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset('assets/icons/neura.svg', width: 40),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        const Text(
+                          "Hi, I'm Neura.",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.white,
+                            height: 32 / 24,
+                            leadingDistribution: TextLeadingDistribution.even,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    const Text(
+                      "How can I help you today?",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: AppColors.dark9,
+                        height: 1.5,
+                        leadingDistribution: TextLeadingDistribution.even,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           if (_chat != null)
             Expanded(
@@ -211,7 +259,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 physics: _scrollPhysics,
                 slivers: [
                   SliverPadding(
-                    padding: EdgeInsets.only(
+                    padding: const EdgeInsets.only(
                       left: 16,
                       right: 16,
                       top: 24,
@@ -228,13 +276,13 @@ class _ChatScreenState extends State<ChatScreen> {
                         return AssistantMessage(content: message.content);
                       },
                       separatorBuilder: (context, index) {
-                        return SizedBox(height: 24);
+                        return const SizedBox(height: 24);
                       },
                       itemCount: _chat!.messages.length,
                     ),
                   ),
                   if (_completionLoading)
-                    SliverPadding(
+                    const SliverPadding(
                       padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
                       sliver: SliverToBoxAdapter(
                         child: Row(children: [AssistantTyping()]),
@@ -244,7 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           Container(
-            decoration: BoxDecoration(color: AppColors.dark1),
+            decoration: const BoxDecoration(color: AppColors.dark1),
             child: Container(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).padding.bottom + 12,
@@ -259,20 +307,21 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   TextField(
                     controller: _textController,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.white,
                       fontSize: 16,
                       height: 1.5,
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
                         borderSide: BorderSide.none,
                       ),
                       contentPadding: EdgeInsets.only(
                         left: 0,
                         right: 0,
-                        top: 16,
+                        top: 32,
+                        bottom: 0,
                       ),
                       hintText: 'Ask Neura anything',
                       hintStyle: TextStyle(
@@ -306,7 +355,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 padding: EdgeInsets.zero,
                               ),
                               child: _createChatLoading
-                                  ? SizedBox(
+                                  ? const SizedBox(
                                       width: 16,
                                       height: 16,
                                       child: CircularProgressIndicator(

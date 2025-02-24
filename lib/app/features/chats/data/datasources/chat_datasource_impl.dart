@@ -11,7 +11,7 @@ class ChatDatasourceImpl implements ChatDatasource {
   @override
   Future<Chat> createGuestChat() async {
     try {
-      final response = await Api.post('/chats/guest');
+      final response = await Api.post('/chats/guest', data: {});
 
       return ChatMapper.fromDto(
         ChatDto.fromJson(response.data),
