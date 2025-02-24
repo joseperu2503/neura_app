@@ -4,7 +4,7 @@ import 'package:neura_app/app/core/constants/app_colors.dart';
 class AppTheme {
   static ThemeData getTheme() {
     return ThemeData(
-      fontFamily: 'Mulish',
+      fontFamily: 'Roboto',
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.dark1,
       appBarTheme: const AppBarTheme(backgroundColor: AppColors.white),
