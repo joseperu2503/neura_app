@@ -136,6 +136,12 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  void newChat() {
+    setState(() {
+      _chat = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,6 +158,27 @@ class _ChatScreenState extends State<ChatScreen> {
                 SvgPicture.asset('assets/icons/neura.svg', width: 24),
                 SizedBox(width: 12),
                 SvgPicture.asset('assets/icons/neura_text.svg', height: 16),
+                Spacer(),
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: TextButton(
+                    onPressed: () {
+                      newChat();
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: SvgPicture.asset(
+                      'assets/icons/new-chat.svg',
+                      width: 24,
+                      colorFilter: ColorFilter.mode(
+                        AppColors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -263,16 +290,25 @@ class _ChatScreenState extends State<ChatScreen> {
                                 disabledBackgroundColor: AppColors.dark8,
                                 padding: EdgeInsets.zero,
                               ),
-                              child: SvgPicture.asset(
-                                'assets/icons/send.svg',
-                                width: 20,
-                                colorFilter: ColorFilter.mode(
-                                  _textController.text == ''
-                                      ? AppColors.dark4
-                                      : AppColors.white,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
+                              child: _createChatLoading
+                                  ? SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                        color: AppColors.dark6,
+                                      ),
+                                    )
+                                  : SvgPicture.asset(
+                                      'assets/icons/send.svg',
+                                      width: 24,
+                                      colorFilter: ColorFilter.mode(
+                                        _textController.text == ''
+                                            ? AppColors.dark1
+                                            : AppColors.white,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
                             );
                           },
                         ),
