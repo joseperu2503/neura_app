@@ -5,6 +5,7 @@ import 'package:neura_app/app/core/constants/storage_keys.dart';
 import 'package:neura_app/app/core/services/storage_service.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
+import 'package:neura_app/app/shared/plugins/snackbar/index.dart';
 import 'package:neura_app/di.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
@@ -30,7 +31,9 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    getChat();
+    Future.microtask(() {
+      getChat();
+    });
   }
 
   @override
@@ -44,7 +47,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (chatId == null) return;
 
-    _chat = await _repository.getGuestChat(chatId: chatId);
+    try {
+      _chat = await _repository.getGuestChat(chatId: chatId);
+    } catch (e) {
+      SnackbarService.show(e.toString(), type: SnackbarType.error);
+    }
 
     setState(() {
       _chat = _chat;
@@ -100,9 +107,13 @@ class _ChatScreenState extends State<ChatScreen> {
       },
       onDone: () {
         print("Streaming completado.");
+        setState(() {
+          _completionLoading = false;
+        });
       },
-      onError: (error) {
-        print("Error en el streaming: $error");
+      onError: (e) {
+        print("Error en el streaming: $e");
+        SnackbarService.show(e.toString(), type: SnackbarType.error);
       },
     );
   }

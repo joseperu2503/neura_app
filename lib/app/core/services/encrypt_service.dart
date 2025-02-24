@@ -29,7 +29,7 @@ class EncryptionService {
 
     final encrypter = Encrypter(AES(Key(key), mode: AESMode.cbc));
     final encrypted = encrypter.encrypt(text, iv: IV(iv));
-
+  
     return {
       "ct": encrypted.base64,
       "iv": hex.encode(iv),
@@ -37,9 +37,13 @@ class EncryptionService {
     };
   }
 
-  static Future<T> decrypt<T>(EncrypResponse encrypResponse) async {
-    Uint8List salt = Uint8List.fromList(hex.decode(encrypResponse.s));
-    Uint8List iv = Uint8List.fromList(hex.decode(encrypResponse.iv));
+  static Future<T> decrypt<T>(Map<String, dynamic> value) async {
+    if (value['s'] == null || value['iv'] == null || value['ct'] == null) {
+      throw Exception();
+    }
+
+    Uint8List salt = Uint8List.fromList(hex.decode(value['s']!));
+    Uint8List iv = Uint8List.fromList(hex.decode(value['iv']!));
 
     Uint8List concatedPassphrase = Uint8List.fromList([
       ...Environment.encryptionKey.codeUnits,
@@ -57,7 +61,7 @@ class EncryptionService {
     final key = Key(result.sublist(0, 32));
 
     final encrypter = Encrypter(AES(key, mode: AESMode.cbc));
-    final encrypted = Encrypted.fromBase64(encrypResponse.ct);
+    final encrypted = Encrypted.fromBase64(value['ct']!);
 
     final decrypted = encrypter.decrypt(encrypted, iv: IV(iv));
 
@@ -73,28 +77,4 @@ class EncryptionService {
   static Uint8List _md5(Uint8List data) {
     return Uint8List.fromList(md5.convert(data).bytes);
   }
-}
-
-class EncrypResponse {
-  final String ct;
-  final String iv;
-  final String s;
-
-  EncrypResponse({
-    required this.ct,
-    required this.iv,
-    required this.s,
-  });
-
-  factory EncrypResponse.fromJson(Map<String, dynamic> json) => EncrypResponse(
-        ct: json["ct"],
-        iv: json["iv"],
-        s: json["s"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "ct": ct,
-        "iv": iv,
-        "s": s,
-      };
 }

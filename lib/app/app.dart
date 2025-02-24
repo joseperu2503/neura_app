@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neura_app/app/core/router/app_router.dart';
 import 'package:neura_app/app/core/theme/app_theme.dart';
+import 'package:neura_app/app/shared/plugins/snackbar/providers/snackbar_provider.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -28,6 +29,11 @@ class _AppState extends State<App> {
           routerDelegate: _routerManager.router.routerDelegate,
           routeInformationProvider:
               _routerManager.router.routeInformationProvider,
+          builder: (context, child) {
+            return SnackbarProvider(
+              child: child!,
+            );
+          },
         );
       },
     );

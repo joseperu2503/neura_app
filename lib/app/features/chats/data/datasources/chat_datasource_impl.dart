@@ -17,7 +17,7 @@ class ChatDatasourceImpl implements ChatDatasource {
         ChatDto.fromJson(response.data),
       );
     } catch (e) {
-      throw Exception('An error occurred');
+      throw 'An error occurred';
     }
   }
 
@@ -46,7 +46,7 @@ class ChatDatasourceImpl implements ChatDatasource {
         yield accumulatedText; // 🔹 Emitimos el texto acumulado
       }
     } catch (e) {
-      throw Exception('An error occurred');
+      throw 'An error occurred';
     }
   }
 
@@ -59,7 +59,7 @@ class ChatDatasourceImpl implements ChatDatasource {
         ChatDto.fromJson(response.data),
       );
     } catch (e) {
-      throw Exception('An error occurred');
+      throw 'An error occurred';
     }
   }
 }
