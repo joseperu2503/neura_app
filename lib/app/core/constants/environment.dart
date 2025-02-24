@@ -6,4 +6,5 @@ class Environment {
   }
 
   static String baseUrl = dotenv.get('BASE_URL');
+  static String encryptionKey = dotenv.get('ENCRYPTION_KEY');
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:neura_app/app/core/constants/environment.dart';
 import 'package:neura_app/app/core/constants/storage_keys.dart';
+import 'package:neura_app/app/core/services/encrypt_service.dart';
 import 'package:neura_app/app/core/services/storage_service.dart';
 
 final Dio _dioBase = Dio(BaseOptions(baseUrl: Environment.baseUrl));
@@ -11,7 +12,22 @@ InterceptorsWrapper _interceptor = InterceptorsWrapper(
     options.headers['Authorization'] = 'Bearer $token';
     options.headers['Accept'] = 'application/json';
 
+    if (options.data != null) {
+      options.data = await EncryptionService.encrypt<dynamic>(options.data);
+    }
+
     return handler.next(options);
+  },
+  onResponse: (response, handler) async {
+    if (response.data != null) {
+      try {
+        response.data = await EncryptionService.decrypt<dynamic>(response.data);
+      } catch (e) {
+        throw Exception('Failed to decrypt response: $e');
+      }
+    }
+
+    return handler.next(response);
   },
 );
 
