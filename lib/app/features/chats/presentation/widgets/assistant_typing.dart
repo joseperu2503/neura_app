@@ -33,12 +33,12 @@ class AssistantTypingState extends State<AssistantTyping> {
       setState(() {
         scales[index] = 1.4;
       });
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return false;
       setState(() {
         scales[index] = 1.0;
       });
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
       return true;
     });
   }
@@ -48,7 +48,7 @@ class AssistantTypingState extends State<AssistantTyping> {
     return Container(
       width: 60,
       height: 40,
-      padding: EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: AppColors.dark5,
         borderRadius: BorderRadius.circular(20),
@@ -60,15 +60,15 @@ class AssistantTypingState extends State<AssistantTyping> {
           return Stack(
             clipBehavior: Clip.none,
             children: [
-              SizedBox(width: 10, height: 10),
+              const SizedBox(width: 10, height: 10),
               AnimatedPositioned(
                 top: (10 - 10 * scales[index]) / 2,
                 right: (8 - 10 * scales[index]),
-                duration: Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 500),
                 child: AnimatedContainer(
-                  duration: Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOut,
-                  margin: EdgeInsets.symmetric(horizontal: 3),
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
                   width:
                       10 * scales[index], // Cambio de tamaño en lugar de escala
                   height: 10 * scales[index],

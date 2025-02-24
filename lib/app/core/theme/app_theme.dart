@@ -32,7 +32,7 @@ class AppTheme {
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: AppColors.primary,
       ),
-      dialogTheme: DialogThemeData(backgroundColor: AppColors.white),
+      dialogTheme: const DialogThemeData(backgroundColor: AppColors.white),
     );
   }
 }
