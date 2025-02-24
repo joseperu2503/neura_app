@@ -301,7 +301,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               decoration: BoxDecoration(
                 color: AppColors.dark2,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(24),
               ),
               child: Column(
                 children: [
@@ -338,19 +338,21 @@ class _ChatScreenState extends State<ChatScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       SizedBox(
-                        width: 32,
-                        height: 32,
+                        width: 36,
+                        height: 36,
                         child: ValueListenableBuilder(
                           valueListenable: _textController,
                           builder: (context, value, child) {
                             return TextButton(
-                              onPressed: _textController.text == ''
+                              onPressed: _textController.text == '' ||
+                                      _createChatLoading ||
+                                      _completionLoading
                                   ? null
                                   : () {
                                       completion();
                                     },
                               style: TextButton.styleFrom(
-                                backgroundColor: AppColors.primary2,
+                                backgroundColor: AppColors.primary,
                                 disabledBackgroundColor: AppColors.dark8,
                                 padding: EdgeInsets.zero,
                               ),
