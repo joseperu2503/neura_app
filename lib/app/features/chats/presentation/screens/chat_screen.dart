@@ -25,15 +25,14 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _createChatLoading = false;
   bool _completionLoading = false;
+  ScrollPhysics _scrollPhysics = NeverScrollableScrollPhysics();
 
   Chat? _chat;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      getChat();
-    });
+    getChat();
   }
 
   @override
@@ -106,13 +105,11 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       },
       onDone: () {
-        print("Streaming completado.");
         setState(() {
           _completionLoading = false;
         });
       },
       onError: (e) {
-        print("Error en el streaming: $e");
         SnackbarService.show(e.toString(), type: SnackbarType.error);
       },
     );
@@ -136,13 +133,19 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _scrollToBottom() {
-    Future.delayed(Duration(milliseconds: 100), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(
+        setState(() {
+          _scrollPhysics = ClampingScrollPhysics();
+        });
+        await _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
           duration: Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
+        setState(() {
+          _scrollPhysics = BouncingScrollPhysics();
+        });
       }
     });
   }
@@ -205,6 +208,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: CustomScrollView(
                 controller: _scrollController,
+                physics: _scrollPhysics,
                 slivers: [
                   SliverPadding(
                     padding: EdgeInsets.only(
