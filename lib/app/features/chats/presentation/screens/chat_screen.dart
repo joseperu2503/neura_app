@@ -299,9 +299,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 left: 16,
                 right: 16,
               ),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.dark2,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
               ),
               child: Column(
                 children: [
