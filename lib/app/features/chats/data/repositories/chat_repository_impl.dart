@@ -1,4 +1,4 @@
-import 'package:neura_app/app/features/chats/domain/datasources/chat_datasource.dart';
+import 'package:neura_app/app/features/chats/data/datasources/chat_datasource_impl.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 

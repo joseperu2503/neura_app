@@ -4,8 +4,20 @@ import 'package:dio/dio.dart';
 import 'package:neura_app/app/core/api/api.dart';
 import 'package:neura_app/app/features/chats/data/dto/chat.dto.dart';
 import 'package:neura_app/app/features/chats/data/mappers/chat.mapper.dart';
-import 'package:neura_app/app/features/chats/domain/datasources/chat_datasource.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
+
+abstract class ChatDatasource {
+  Future<Chat> createGuestChat();
+
+  Stream<String> guestCompletion({
+    required String chatId,
+    required String content,
+  });
+
+  Future<Chat> getGuestChat({
+    required String chatId,
+  });
+}
 
 class ChatDatasourceImpl implements ChatDatasource {
   @override
