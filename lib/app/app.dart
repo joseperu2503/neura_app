@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:neura_app/app/core/router/app_router.dart';
 import 'package:neura_app/app/core/theme/app_theme.dart';
 import 'package:neura_app/app/shared/plugins/snackbar/providers/snackbar_provider.dart';
@@ -21,7 +20,7 @@ class _AppState extends State<App> {
         // Actualizamos el router si es necesario
         _routerManager.updateRouter(context);
 
-        return GetMaterialApp.router(
+        return MaterialApp.router(
           title: 'Neura',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.getTheme(),

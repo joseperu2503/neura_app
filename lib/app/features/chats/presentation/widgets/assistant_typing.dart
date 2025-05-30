@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:neura_app/app/core/constants/app_colors.dart';
+import 'package:neura_app/app/core/theme/app_colors.dart';
 
 class AssistantTyping extends StatefulWidget {
   const AssistantTyping({super.key});

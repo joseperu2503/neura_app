@@ -16,7 +16,6 @@ dependencies:
   flutter_dotenv: ^5.2.1
   flutter_native_splash: ^2.4.5
   flutter_svg: ^2.0.17
-  get: ^4.7.2
   get_it: ^8.0.3
   go_router: ^14.8.0
   gpt_markdown: ^1.0.11

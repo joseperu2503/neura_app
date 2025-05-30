@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:neura_app/app/core/constants/environment.dart';
 import 'package:neura_app/app/core/constants/storage_keys.dart';
-import 'package:neura_app/app/core/services/encrypt_service.dart';
-import 'package:neura_app/app/core/services/storage_service.dart';
+import 'package:neura_app/app/core/encrypt/encrypt_service.dart';
+import 'package:neura_app/app/core/storage/storage_service.dart';
 
 InterceptorsWrapper _interceptor = InterceptorsWrapper(
   onRequest: (options, handler) async {

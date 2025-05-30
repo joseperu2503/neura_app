@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:neura_app/app/core/constants/app_colors.dart';
 import 'package:neura_app/app/core/constants/storage_keys.dart';
-import 'package:neura_app/app/core/services/storage_service.dart';
+import 'package:neura_app/app/core/storage/storage_service.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
-import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
-import 'package:neura_app/app/shared/plugins/snackbar/index.dart';
-import 'package:neura_app/di.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_message.dart';
+import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/user_message.dart';
+import 'package:neura_app/app/shared/plugins/snackbar/index.dart';
+import 'package:neura_app/di.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -346,8 +346,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: ValueListenableBuilder(
                           valueListenable: _textController,
                           builder: (context, value, child) {
+                            final textValid =
+                                _textController.text.trim().isNotEmpty;
+
                             return TextButton(
-                              onPressed: _textController.text == '' ||
+                              onPressed: !textValid ||
                                       _createChatLoading ||
                                       _completionLoading
                                   ? null
@@ -356,7 +359,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                     },
                               style: TextButton.styleFrom(
                                 backgroundColor: AppColors.primary,
-                                disabledBackgroundColor: AppColors.dark8,
+                                disabledBackgroundColor:
+                                    AppColors.primary.withAlpha(100),
                                 padding: EdgeInsets.zero,
                               ),
                               child: _createChatLoading
@@ -369,12 +373,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                       ),
                                     )
                                   : SvgPicture.asset(
-                                      'assets/icons/send.svg',
+                                      'assets/icons/arrow-up.svg',
                                       width: 24,
                                       colorFilter: ColorFilter.mode(
-                                        _textController.text == ''
-                                            ? AppColors.dark1
-                                            : AppColors.white,
+                                        textValid
+                                            ? AppColors.white
+                                            : AppColors.dark6.withAlpha(200),
                                         BlendMode.srcIn,
                                       ),
                                     ),
