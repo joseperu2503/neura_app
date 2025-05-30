@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:neura_app/app/core/constants/app_colors.dart';
 import 'package:neura_app/app/core/constants/storage_keys.dart';
 import 'package:neura_app/app/core/storage/storage_service.dart';
+import 'package:neura_app/app/core/theme/app_colors.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:neura_app/app/core/constants/app_colors.dart';
 import 'package:neura_app/app/core/constants/breakpoints.dart';
+import 'package:neura_app/app/core/theme/app_colors.dart';
 import 'package:neura_app/app/shared/plugins/snackbar/enums/snackbar_type.dart';
 
 class Snackbar extends StatelessWidget {
