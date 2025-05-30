@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:encrypt/encrypt.dart';
-import 'package:crypto/crypto.dart';
+
 import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:neura_app/app/core/constants/environment.dart';
 
-class EncryptionService {
+class EncryptService {
   static Future<Map<String, dynamic>> encrypt<T>(T data) async {
     String text = jsonEncode(data);
 
@@ -29,7 +30,7 @@ class EncryptionService {
 
     final encrypter = Encrypter(AES(Key(key), mode: AESMode.cbc));
     final encrypted = encrypter.encrypt(text, iv: IV(iv));
-  
+
     return {
       "ct": encrypted.base64,
       "iv": hex.encode(iv),

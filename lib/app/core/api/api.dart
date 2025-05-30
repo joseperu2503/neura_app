@@ -10,7 +10,7 @@ InterceptorsWrapper _interceptor = InterceptorsWrapper(
     options.headers['Authorization'] = 'Bearer $token';
     options.headers['Accept'] = 'application/json';
     if (options.data != null) {
-      options.data = await EncryptionService.encrypt<dynamic>(options.data);
+      options.data = await EncryptService.encrypt<dynamic>(options.data);
       // print(options.data);
     }
 
@@ -19,7 +19,7 @@ InterceptorsWrapper _interceptor = InterceptorsWrapper(
   onResponse: (response, handler) async {
     if (response.data != null && response.data is Map<String, dynamic>) {
       try {
-        response.data = await EncryptionService.decrypt<dynamic>(response.data);
+        response.data = await EncryptService.decrypt<dynamic>(response.data);
       } catch (e) {
         return handler.reject(
           DioException(
