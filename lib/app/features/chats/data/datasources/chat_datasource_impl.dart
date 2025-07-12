@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:neura_app/app/core/api/api.dart';
+import 'package:neura_app/app/core/network/dio_client.dart';
 import 'package:neura_app/app/features/chats/data/dto/chat.dto.dart';
 import 'package:neura_app/app/features/chats/data/mappers/chat.mapper.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
@@ -20,10 +20,14 @@ abstract class ChatDatasource {
 }
 
 class ChatDatasourceImpl implements ChatDatasource {
+  final DioClient dio;
+
+  ChatDatasourceImpl({required this.dio});
+
   @override
   Future<Chat> createGuestChat() async {
     try {
-      final response = await Api.post('/chats/guest', data: {});
+      final response = await dio.post('/chats/guest', data: {});
 
       return ChatMapper.fromDto(
         ChatDto.fromJson(response.data),
@@ -44,7 +48,7 @@ class ChatDatasourceImpl implements ChatDatasource {
         "content": content, // Asegúrate de usar el parámetro
       };
 
-      Response<dynamic> response = await Api.postStream(
+      Response<dynamic> response = await dio.postStream(
         '/chats/guest/completion',
         data: body,
       );
@@ -65,7 +69,7 @@ class ChatDatasourceImpl implements ChatDatasource {
   @override
   Future<Chat> getGuestChat({required String chatId}) async {
     try {
-      final response = await Api.get('/chats/guest/$chatId');
+      final response = await dio.get('/chats/guest/$chatId');
 
       return ChatMapper.fromDto(
         ChatDto.fromJson(response.data),

@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart';
-import 'package:neura_app/app/core/constants/environment.dart';
+import 'package:neura_app/app/core/environments/environments.dart';
 
 class EncryptService {
   static Future<Map<String, dynamic>> encrypt<T>(T data) async {
@@ -19,7 +19,7 @@ class EncryptService {
     while (salted.length < 48) {
       dx = _md5(Uint8List.fromList([
         ...dx,
-        ...Environment.encryptionKey.codeUnits,
+        ...Environments.encryptionKey.codeUnits,
         ...salt,
       ]));
       salted = Uint8List.fromList([...salted, ...dx]);
@@ -47,7 +47,7 @@ class EncryptService {
     Uint8List iv = Uint8List.fromList(hex.decode(value['iv']!));
 
     Uint8List concatedPassphrase = Uint8List.fromList([
-      ...Environment.encryptionKey.codeUnits,
+      ...Environments.encryptionKey.codeUnits,
       ...salt,
     ]);
 

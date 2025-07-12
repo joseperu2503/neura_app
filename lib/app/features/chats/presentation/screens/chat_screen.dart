@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:neura_app/app/core/constants/storage_keys.dart';
+import 'package:neura_app/app/core/storage/storage_keys.dart';
 import 'package:neura_app/app/core/storage/storage_service.dart';
 import 'package:neura_app/app/core/theme/app_colors.dart';
+import 'package:neura_app/app/features/auth/domain/usecases/guest_register.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
@@ -10,7 +11,7 @@ import 'package:neura_app/app/features/chats/presentation/widgets/assistant_mess
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/user_message.dart';
 import 'package:neura_app/app/shared/plugins/snackbar/index.dart';
-import 'package:neura_app/di.dart';
+import 'package:neura_app/service_locator.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -20,7 +21,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final ChatRepository _repository = getIt<ChatRepository>();
+  final ChatRepository _repository = sl<ChatRepository>();
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _createChatLoading = false;
@@ -28,6 +29,10 @@ class _ChatScreenState extends State<ChatScreen> {
   ScrollPhysics _scrollPhysics = const NeverScrollableScrollPhysics();
 
   Chat? _chat;
+
+  final GuestRegisterUseCase _guestRegisterUseCase = sl<GuestRegisterUseCase>();
+
+  final _storageService = sl<StorageService>();
 
   @override
   void initState() {
@@ -42,7 +47,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   getChat() async {
-    final String? chatId = await StorageService.get<String>(StorageKeys.chatId);
+    final String? chatId =
+        await _storageService.get<String>(StorageKeys.chatId);
 
     if (chatId == null) return;
 
@@ -76,7 +82,7 @@ class _ChatScreenState extends State<ChatScreen> {
         SnackbarService.show(e.toString(), type: SnackbarType.error);
       }
 
-      StorageService.set(StorageKeys.chatId, _chat!.id);
+      _storageService.set(StorageKeys.chatId, _chat!.id);
 
       setState(() {
         _createChatLoading = false;
@@ -162,7 +168,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _chat = null;
       _textController.text = '';
-      StorageService.remove(StorageKeys.chatId);
+      _storageService.remove(StorageKeys.chatId);
     });
   }
 

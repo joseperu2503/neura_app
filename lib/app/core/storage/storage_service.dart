@@ -1,31 +1,40 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class StorageService {
-  static Future<SharedPreferences> getSharedPreferences() async {
-    return await SharedPreferences.getInstance();
-  }
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-  static Future<T?> get<T>(String key) async {
+abstract class StorageService {
+  Future<T?> get<T>(String key);
+  Future<void> set<T>(String key, T value);
+  Future<void> remove(String key);
+}
+
+class SecureStorageService implements StorageService {
+  SecureStorageService();
+
+  static AndroidOptions _getAndroidOptions() => AndroidOptions();
+
+  static final FlutterSecureStorage _storage = FlutterSecureStorage();
+
+  @override
+  Future<T?> get<T>(String key) async {
     try {
-      final prefs = await getSharedPreferences();
-      final data = prefs.getString(key);
+      final data = await _storage.read(key: key);
       if (data == null) return null;
       final value = jsonDecode(data);
       return value['data'] as T;
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
 
-  static Future<void> remove(String key) async {
-    final prefs = await getSharedPreferences();
-    await prefs.remove(key);
+  @override
+  Future<void> set<T>(String key, T value) async {
+    final data = jsonEncode({'data': value});
+    await _storage.write(key: key, value: data);
   }
 
-  static Future<void> set<T>(String key, T value) async {
-    final prefs = await getSharedPreferences();
-    final Map<String, dynamic> data = {'data': value};
-    prefs.setString(key, jsonEncode(data));
+  @override
+  Future<void> remove(String key) async {
+    await _storage.delete(key: key);
   }
 }
