@@ -1,14 +1,14 @@
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 
 abstract class ChatRepository {
-  Future<Chat> createGuestChat();
+  Future<Chat> createChat();
 
-  Stream<String> guestCompletion({
+  Stream<String> completion({
     required String chatId,
     required String content,
   });
 
-  Future<Chat> getGuestChat({
+  Future<Chat> getChat({
     required String chatId,
   });
 }

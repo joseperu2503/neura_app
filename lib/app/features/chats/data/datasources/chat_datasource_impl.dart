@@ -7,16 +7,11 @@ import 'package:neura_app/app/features/chats/data/mappers/chat.mapper.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 
 abstract class ChatDatasource {
-  Future<Chat> createGuestChat();
+  Future<Chat> createChat();
 
-  Stream<String> guestCompletion({
-    required String chatId,
-    required String content,
-  });
+  Stream<String> completion({required String chatId, required String content});
 
-  Future<Chat> getGuestChat({
-    required String chatId,
-  });
+  Future<Chat> getChat({required String chatId});
 }
 
 class ChatDatasourceImpl implements ChatDatasource {
@@ -25,20 +20,18 @@ class ChatDatasourceImpl implements ChatDatasource {
   ChatDatasourceImpl({required this.dio});
 
   @override
-  Future<Chat> createGuestChat() async {
+  Future<Chat> createChat() async {
     try {
-      final response = await dio.post('/chats/guest', data: {});
+      final response = await dio.get('/chats/create');
 
-      return ChatMapper.fromDto(
-        ChatDto.fromJson(response.data),
-      );
+      return ChatMapper.fromDto(ChatDto.fromJson(response.data));
     } catch (e) {
       throw 'An error occurred';
     }
   }
 
   @override
-  Stream<String> guestCompletion({
+  Stream<String> completion({
     required String chatId,
     required String content,
   }) async* {
@@ -49,7 +42,7 @@ class ChatDatasourceImpl implements ChatDatasource {
       };
 
       Response<dynamic> response = await dio.postStream(
-        '/chats/guest/completion',
+        '/chats/completion',
         data: body,
       );
       Stream<List<int>> stream = response.data!.stream;
@@ -67,13 +60,13 @@ class ChatDatasourceImpl implements ChatDatasource {
   }
 
   @override
-  Future<Chat> getGuestChat({required String chatId}) async {
+  Future<Chat> getChat({required String chatId}) async {
     try {
-      final response = await dio.get('/chats/guest/$chatId');
+      final data = {chatId: chatId};
 
-      return ChatMapper.fromDto(
-        ChatDto.fromJson(response.data),
-      );
+      final response = await dio.post('/chats/details', data: data);
+
+      return ChatMapper.fromDto(ChatDto.fromJson(response.data));
     } catch (e) {
       throw 'An error occurred';
     }

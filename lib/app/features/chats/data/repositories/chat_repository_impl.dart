@@ -8,20 +8,17 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl(this.datasource);
 
   @override
-  Future<Chat> createGuestChat() {
-    return datasource.createGuestChat();
+  Future<Chat> createChat() {
+    return datasource.createChat();
   }
 
   @override
-  Stream<String> guestCompletion({
-    required String chatId,
-    required String content,
-  }) {
-    return datasource.guestCompletion(chatId: chatId, content: content);
+  Stream<String> completion({required String chatId, required String content}) {
+    return datasource.completion(chatId: chatId, content: content);
   }
 
   @override
-  Future<Chat> getGuestChat({required String chatId}) {
-    return datasource.getGuestChat(chatId: chatId);
+  Future<Chat> getChat({required String chatId}) {
+    return datasource.getChat(chatId: chatId);
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:neura_app/app/core/storage/storage_keys.dart';
 import 'package:neura_app/app/core/storage/storage_service.dart';
 import 'package:neura_app/app/core/theme/app_colors.dart';
-import 'package:neura_app/app/features/auth/domain/usecases/guest_register.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
@@ -30,8 +29,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Chat? _chat;
 
-  final GuestRegisterUseCase _guestRegisterUseCase = sl<GuestRegisterUseCase>();
-
   final _storageService = sl<StorageService>();
 
   @override
@@ -54,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (chatId == null) return;
 
     try {
-      _chat = await _repository.getGuestChat(chatId: chatId);
+      _chat = await _repository.getChat(chatId: chatId);
     } catch (e) {
       SnackbarService.show(e.toString(), type: SnackbarType.error);
     }
@@ -75,7 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
       });
 
       try {
-        _chat = await _repository.createGuestChat();
+        _chat = await _repository.createChat();
       } catch (e) {
         setState(() {
           _createChatLoading = false;
@@ -105,7 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     _repository
-        .guestCompletion(chatId: _chat!.id, content: content)
+        .completion(chatId: _chat!.id, content: content)
         .listen(
           (chunk) {
             _addMessage(

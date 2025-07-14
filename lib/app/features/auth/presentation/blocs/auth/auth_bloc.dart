@@ -28,7 +28,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    print('GuestRegister');
     final res = await guestRegisterUseCase();
     res.fold(
       (failure) {
@@ -36,7 +35,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
       (_) {
         emit(Authenticated());
-        print('GuestRegister Success');
       },
     );
   }
@@ -52,7 +50,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     final isLoggedIn = await isLogguedInUseCase.call();
 
-    print('isLoggedIn: $isLoggedIn');
     if (isLoggedIn) {
       emit(Authenticated());
     } else {
