@@ -16,7 +16,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final res = await _authRemoteDataSource.guestRegister();
 
-      await _authLocalDataSource.set(res.token);
+      await _authLocalDataSource.set(res.accessToken);
       return right(unit);
     } on ServerException catch (e) {
       return left(Failure(e.message));

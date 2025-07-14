@@ -14,6 +14,6 @@ void main() async {
   );
 
   await Environments.init();
-  setup(); // Inicializar inyección de dependencias
+  setupServiceLocator();
   runApp(const App());
 }

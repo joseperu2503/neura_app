@@ -15,7 +15,7 @@ import 'package:neura_app/app/features/chats/domain/repositories/chat_repository
 
 final sl = GetIt.instance;
 
-void setup() {
+void setupServiceLocator() {
   sl.registerLazySingleton<StorageService>(
     () => SecureStorageService(),
   );

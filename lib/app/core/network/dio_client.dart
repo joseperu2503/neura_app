@@ -11,14 +11,14 @@ class DioClient {
   final StorageService storageService;
 
   DioClient({required this.tokenService, required this.storageService})
-      : _dio = Dio(BaseOptions(
+    : _dio = Dio(
+        BaseOptions(
           baseUrl: '${Environments.baseUrl}/api',
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        )) {
+          headers: {'Content-Type': 'application/json'},
+        ),
+      ) {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -30,17 +30,20 @@ class DioClient {
             }
           }
 
-          if (options.data != null) {
+          if (options.data != null && Environments.encrypt) {
             options.data = await EncryptService.encrypt<dynamic>(options.data);
           }
 
           return handler.next(options);
         },
         onResponse: (response, handler) async {
-          if (response.data != null && response.data is Map<String, dynamic>) {
+          if (response.data != null &&
+              response.data is Map<String, dynamic> &&
+              Environments.encrypt) {
             try {
-              response.data =
-                  await EncryptService.decrypt<dynamic>(response.data);
+              response.data = await EncryptService.decrypt<dynamic>(
+                response.data,
+              );
             } catch (e) {
               return handler.reject(
                 DioException(
@@ -57,15 +60,15 @@ class DioClient {
         },
         onError: (DioException e, handler) {
           if (e.response?.statusCode == 401) {
-            return handler.next(e.copyWith(
-              message: e.response?.data['message'],
-            ));
+            return handler.next(
+              e.copyWith(message: e.response?.data['message']),
+            );
           }
 
           if (e.response?.statusCode == 400) {
-            return handler.next(e.copyWith(
-              message: e.response?.data['message'],
-            ));
+            return handler.next(
+              e.copyWith(message: e.response?.data['message']),
+            );
           }
 
           return handler.next(e);

@@ -47,8 +47,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   getChat() async {
-    final String? chatId =
-        await _storageService.get<String>(StorageKeys.chatId);
+    final String? chatId = await _storageService.get<String>(
+      StorageKeys.chatId,
+    );
 
     if (chatId == null) return;
 
@@ -93,40 +94,44 @@ class _ChatScreenState extends State<ChatScreen> {
       _completionLoading = true;
 
       _textController.text = '';
-      _chat = _chat!.copyWith(messages: [
-        ..._chat!.messages,
-        Message(role: 'user', content: content, createdAt: DateTime.now()),
-      ]);
+      _chat = _chat!.copyWith(
+        messages: [
+          ..._chat!.messages,
+          Message(role: 'user', content: content, createdAt: DateTime.now()),
+        ],
+      );
     });
 
     _scrollToBottom();
 
-    _repository.guestCompletion(chatId: _chat!.id, content: content).listen(
-      (chunk) {
-        _addMessage(
-          message: Message(
-            role: 'assistant',
-            content: chunk,
-            createdAt: DateTime.now(),
-          ),
-          pop: !_completionLoading,
-        );
+    _repository
+        .guestCompletion(chatId: _chat!.id, content: content)
+        .listen(
+          (chunk) {
+            _addMessage(
+              message: Message(
+                role: 'assistant',
+                content: chunk,
+                createdAt: DateTime.now(),
+              ),
+              pop: !_completionLoading,
+            );
 
-        if (_completionLoading) {
-          setState(() {
-            _completionLoading = false;
-          });
-        }
-      },
-      onDone: () {
-        setState(() {
-          _completionLoading = false;
-        });
-      },
-      onError: (e) {
-        SnackbarService.show(e.toString(), type: SnackbarType.error);
-      },
-    );
+            if (_completionLoading) {
+              setState(() {
+                _completionLoading = false;
+              });
+            }
+          },
+          onDone: () {
+            setState(() {
+              _completionLoading = false;
+            });
+          },
+          onError: (e) {
+            SnackbarService.show(e.toString(), type: SnackbarType.error);
+          },
+        );
   }
 
   void _addMessage({required Message message, bool pop = false}) {
@@ -137,10 +142,7 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       }
 
-      _chat = _chat!.copyWith(messages: [
-        ..._chat!.messages,
-        message,
-      ]);
+      _chat = _chat!.copyWith(messages: [..._chat!.messages, message]);
     });
 
     _scrollToBottom();
@@ -196,9 +198,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () {
                       newChat();
                     },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                    ),
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
                     child: SvgPicture.asset(
                       'assets/icons/new-chat.svg',
                       width: 24,
@@ -226,9 +226,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset('assets/icons/neura.svg', width: 40),
-                        const SizedBox(
-                          width: 8,
-                        ),
+                        const SizedBox(width: 8),
                         const Text(
                           "Hi, I'm Neura.",
                           style: TextStyle(
@@ -241,9 +239,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 16,
-                    ),
+                    const SizedBox(height: 16),
                     const Text(
                       "How can I help you today?",
                       style: TextStyle(
@@ -276,7 +272,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         final message = _chat!.messages[index];
                         if (message.role == 'user') {
                           return UserMessage(
-                              content: _chat!.messages[index].content);
+                            content: _chat!.messages[index].content,
+                          );
                         }
 
                         return AssistantMessage(content: message.content);
@@ -323,9 +320,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       fontWeight: FontWeight.w400,
                     ),
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                      ),
+                      border: OutlineInputBorder(borderSide: BorderSide.none),
                       contentPadding: EdgeInsets.only(
                         left: 0,
                         right: 0,
@@ -356,38 +351,40 @@ class _ChatScreenState extends State<ChatScreen> {
                                 _textController.text.trim().isNotEmpty;
 
                             return TextButton(
-                              onPressed: !textValid ||
-                                      _createChatLoading ||
-                                      _completionLoading
-                                  ? null
-                                  : () {
-                                      completion();
-                                    },
+                              onPressed:
+                                  !textValid ||
+                                          _createChatLoading ||
+                                          _completionLoading
+                                      ? null
+                                      : () {
+                                        completion();
+                                      },
                               style: TextButton.styleFrom(
                                 backgroundColor: AppColors.primary,
-                                disabledBackgroundColor:
-                                    AppColors.primary.withAlpha(100),
+                                disabledBackgroundColor: AppColors.primary
+                                    .withAlpha(100),
                                 padding: EdgeInsets.zero,
                               ),
-                              child: _createChatLoading
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 3,
-                                        color: AppColors.dark6,
+                              child:
+                                  _createChatLoading
+                                      ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 3,
+                                          color: AppColors.dark6,
+                                        ),
+                                      )
+                                      : SvgPicture.asset(
+                                        'assets/icons/arrow-up.svg',
+                                        width: 24,
+                                        colorFilter: ColorFilter.mode(
+                                          textValid
+                                              ? AppColors.white
+                                              : AppColors.dark6.withAlpha(200),
+                                          BlendMode.srcIn,
+                                        ),
                                       ),
-                                    )
-                                  : SvgPicture.asset(
-                                      'assets/icons/arrow-up.svg',
-                                      width: 24,
-                                      colorFilter: ColorFilter.mode(
-                                        textValid
-                                            ? AppColors.white
-                                            : AppColors.dark6.withAlpha(200),
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
                             );
                           },
                         ),
