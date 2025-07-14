@@ -62,7 +62,7 @@ class ChatDatasourceImpl implements ChatDatasource {
   @override
   Future<Chat> getChat({required String chatId}) async {
     try {
-      final data = {chatId: chatId};
+      final data = {"chatId": chatId};
 
       final response = await dio.post('/chats/details', data: data);
 
