@@ -58,69 +58,127 @@ void showAssistanMessageMenu({
 
   menuOverlay = OverlayEntry(
     builder: (context) {
-      // return Stack(
-      //   children: [
-      //     Positioned(
-      //       top: top,
-      //       bottom: bottom,
-      //       left: alignLeft ? dx : null,
-      //       right: alignLeft ? null : (screenWidth - dx),
-      //       child: TapRegion(
-      //         onTapOutside: (event) {
-      //           menuOverlay?.remove();
-      //         },
-      //         child: Opacity(
-      //           opacity: _opacityAnim.value,
-      //           child: Transform.scale(
-      //             scale: _scaleAnim.value,
-      //             alignment: alignment,
-      //             child: Container(
-      //               width: widget.menuWidth,
-      //               decoration: BoxDecoration(
-      //                 color: AppColors.dark3,
-      //                 borderRadius: BorderRadius.circular(12),
-      //                 boxShadow: [
-      //                   const BoxShadow(
-      //                     color: AppColors.dark1,
-      //                     blurRadius: 8,
-      //                     offset: Offset(2, 2),
-      //                   ),
-      //                 ],
-      //               ),
-      //               child: ClipRRect(
-      //                 borderRadius: BorderRadius.circular(12),
-      //                 child: Material(
-      //                   color: Colors.transparent,
-      //                   child: Column(
-      //                     mainAxisSize: MainAxisSize.min,
-      //                     children: [
-      //                       _menuItem("Good Response", "like"),
-      //                       _menuItem("Bad Response", "dislike"),
-      //                     ],
-      //                   ),
-      //                 ),
-      //               ),
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ],
-      // );
-      return AnimatedMenu(
+      return _CustomOverlay(
         dx: dx,
         top: top,
         bottom: bottom,
         alignLeft: alignLeft,
         screenWidth: screenSize.width,
-        menuWidth: menuWidth,
         verticalAlign: verticalAlign,
         onDismiss: () {
           menuOverlay?.remove();
         },
+        child: const CustomMenu(menuWidth: menuWidth),
       );
     },
   );
 
   Overlay.of(context).insert(menuOverlay);
+}
+
+class _CustomOverlay extends StatefulWidget {
+  final double dx;
+  final double? top;
+  final double? bottom;
+  final bool alignLeft;
+  final double screenWidth;
+  final String verticalAlign;
+  final VoidCallback onDismiss;
+  final Widget child;
+
+  const _CustomOverlay({
+    required this.dx,
+    required this.top,
+    required this.bottom,
+    required this.alignLeft,
+    required this.screenWidth,
+    required this.verticalAlign,
+    required this.onDismiss,
+    required this.child,
+  });
+
+  @override
+  State<_CustomOverlay> createState() => _CustomOverlayState();
+}
+
+class _CustomOverlayState extends State<_CustomOverlay>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacityAnim;
+  late Animation<double> _scaleAnim;
+
+  late Alignment alignment;
+
+  @override
+  void initState() {
+    super.initState();
+
+    alignment = _getAlignment();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+
+    _opacityAnim = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    _scaleAnim = Tween<double>(
+      begin: 0.9,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+
+    _controller.forward();
+  }
+
+  Alignment _getAlignment() {
+    // Determinar el origen de la animación según verticalAlign y alignLeft
+    if (widget.verticalAlign == "top") {
+      return widget.alignLeft ? Alignment.topLeft : Alignment.topRight;
+    } else if (widget.verticalAlign == "bottom") {
+      return widget.alignLeft ? Alignment.bottomLeft : Alignment.bottomRight;
+    } else {
+      return widget.alignLeft ? Alignment.centerLeft : Alignment.centerRight;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Stack(
+          children: [
+            Positioned(
+              top: widget.top,
+              bottom: widget.bottom,
+              left: widget.alignLeft ? widget.dx : null,
+              right: widget.alignLeft ? null : (widget.screenWidth - widget.dx),
+              child: TapRegion(
+                onTapOutside: (event) {
+                  widget.onDismiss();
+                },
+                child: Opacity(
+                  opacity: _opacityAnim.value,
+                  child: Transform.scale(
+                    scale: _scaleAnim.value,
+                    alignment: alignment,
+                    child: widget.child,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
