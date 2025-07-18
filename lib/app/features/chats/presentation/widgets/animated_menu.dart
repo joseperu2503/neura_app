@@ -3,9 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:neura_app/app/core/theme/app_colors.dart';
 
 class CustomMenu extends StatelessWidget {
-  const CustomMenu({super.key, required this.menuWidth});
-
-  final double menuWidth;
+  const CustomMenu({super.key});
 
   Widget _menuItem(String text, String icon) {
     return ListTile(
@@ -28,7 +26,7 @@ class CustomMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: menuWidth,
+      width: 200,
       decoration: BoxDecoration(
         color: AppColors.dark3,
         borderRadius: BorderRadius.circular(12),

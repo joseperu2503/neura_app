@@ -10,7 +10,6 @@ void showAssistanMessageMenu({
   OverlayEntry? menuOverlay;
 
   final screenSize = MediaQuery.of(context).size;
-  const menuWidth = 200.0;
   const menuHeight = 100.0;
   const safeBottom = 200.0;
 
@@ -68,7 +67,7 @@ void showAssistanMessageMenu({
         onDismiss: () {
           menuOverlay?.remove();
         },
-        child: const CustomMenu(menuWidth: menuWidth),
+        child: const CustomMenu(),
       );
     },
   );
