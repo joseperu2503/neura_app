@@ -21,4 +21,25 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Chat> getChat({required String chatId}) {
     return datasource.getChat(chatId: chatId);
   }
+
+  @override
+  Future<void> approveMessage({
+    required String chatId,
+    required String messageId,
+  }) {
+    return datasource.approveMessage(chatId: chatId, messageId: messageId);
+  }
+
+  @override
+  Future<void> disapproveMessage({
+    required String chatId,
+    required String messageId,
+    required String reason,
+  }) {
+    return datasource.disapproveMessage(
+      chatId: chatId,
+      messageId: messageId,
+      reason: reason,
+    );
+  }
 }

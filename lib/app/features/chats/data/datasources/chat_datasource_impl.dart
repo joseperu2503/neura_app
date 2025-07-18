@@ -12,6 +12,17 @@ abstract class ChatDatasource {
   Stream<String> completion({required String chatId, required String content});
 
   Future<Chat> getChat({required String chatId});
+
+  Future<void> approveMessage({
+    required String chatId,
+    required String messageId,
+  });
+
+  Future<void> disapproveMessage({
+    required String chatId,
+    required String messageId,
+    required String reason,
+  });
 }
 
 class ChatDatasourceImpl implements ChatDatasource {
@@ -67,6 +78,35 @@ class ChatDatasourceImpl implements ChatDatasource {
       final response = await dio.post('/chats/details', data: data);
 
       return ChatMapper.fromDto(ChatDto.fromJson(response.data));
+    } catch (e) {
+      throw 'An error occurred';
+    }
+  }
+
+  @override
+  Future<void> approveMessage({
+    required String chatId,
+    required String messageId,
+  }) async {
+    try {
+      final data = {"chatId": chatId, "messageId": messageId};
+
+      await dio.post('/chats/approve', data: data);
+    } catch (e) {
+      throw 'An error occurred';
+    }
+  }
+
+  @override
+  Future<void> disapproveMessage({
+    required String chatId,
+    required String messageId,
+    required String reason,
+  }) async {
+    try {
+      final data = {"chatId": chatId, "messageId": messageId, "reason": reason};
+
+      await dio.post('/chats/disapprove', data: data);
     } catch (e) {
       throw 'An error occurred';
     }
