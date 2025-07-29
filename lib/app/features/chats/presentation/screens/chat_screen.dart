@@ -95,7 +95,12 @@ class _ChatScreenState extends State<ChatScreen> {
       _chat = _chat!.copyWith(
         messages: [
           ..._chat!.messages,
-          Message(role: 'user', content: content, createdAt: DateTime.now()),
+          Message(
+            id: DateTime.now().toString(),
+            role: MessageRole.user,
+            content: content,
+            createdAt: DateTime.now(),
+          ),
         ],
       );
     });
@@ -106,14 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
         .completion(chatId: _chat!.id, content: content)
         .listen(
           (chunk) {
-            _addMessage(
-              message: Message(
-                role: 'assistant',
-                content: chunk,
-                createdAt: DateTime.now(),
-              ),
-              pop: !_completionLoading,
-            );
+            _addMessage(message: chunk, pop: !_completionLoading);
 
             if (_completionLoading) {
               setState(() {
@@ -275,7 +273,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             );
                           }
 
-                          return AssistantMessage(content: message.content);
+                          return AssistantMessage(
+                            message: message,
+                            chatId: _chat!.id,
+                          );
                         },
                         separatorBuilder: (context, index) {
                           return const SizedBox(height: 24);

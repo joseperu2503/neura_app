@@ -12,7 +12,11 @@ class ChatMapper {
           dto.messages
               .map(
                 (e) => Message(
-                  role: e.role,
+                  id: e.id,
+                  role:
+                      e.role == 'user'
+                          ? MessageRole.user
+                          : MessageRole.assistant,
                   content: e.content,
                   createdAt: e.createdAt,
                 ),

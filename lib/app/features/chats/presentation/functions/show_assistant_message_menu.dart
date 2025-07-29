@@ -67,7 +67,26 @@ void showAssistanMessageMenu({
         onDismiss: () {
           menuOverlay?.remove();
         },
-        child: const CustomMenu(),
+        child: CustomMenu(
+          options: [
+            MenuOption(
+              text: "Good Response",
+              icon: "like",
+              onTap: () {
+                menuOverlay?.remove();
+                goodResponse();
+              },
+            ),
+            MenuOption(
+              text: "Bad Response",
+              icon: "dislike",
+              onTap: () {
+                menuOverlay?.remove();
+                badResponse();
+              },
+            ),
+          ],
+        ),
       );
     },
   );

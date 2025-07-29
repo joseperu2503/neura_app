@@ -5,11 +5,12 @@ import 'package:neura_app/app/core/network/dio_client.dart';
 import 'package:neura_app/app/features/chats/data/dto/chat.dto.dart';
 import 'package:neura_app/app/features/chats/data/mappers/chat.mapper.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
+import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 
 abstract class ChatDatasource {
   Future<Chat> createChat();
 
-  Stream<String> completion({required String chatId, required String content});
+  Stream<Message> completion({required String chatId, required String content});
 
   Future<Chat> getChat({required String chatId});
 
@@ -42,7 +43,7 @@ class ChatDatasourceImpl implements ChatDatasource {
   }
 
   @override
-  Stream<String> completion({
+  Stream<Message> completion({
     required String chatId,
     required String content,
   }) async* {
@@ -58,12 +59,28 @@ class ChatDatasourceImpl implements ChatDatasource {
       );
       Stream<List<int>> stream = response.data!.stream;
 
+      String messageId = "";
+
       String accumulatedText = ""; // 🔹 Acumulador de chunks
 
       await for (var chunk in stream) {
         String decoded = utf8.decode(chunk);
-        accumulatedText += decoded; // 🔹 Concatenamos el nuevo chunk
-        yield accumulatedText; // 🔹 Emitimos el texto acumulado
+
+        if (decoded.startsWith('data:')) {
+          final dataStr = decoded.substring(5).trim();
+
+          final json = jsonDecode(dataStr);
+
+          messageId = json['messageId'];
+        } else {
+          accumulatedText += decoded; // 🔹 Concatenamos el nuevo chunk
+          yield Message(
+            id: messageId,
+            role: MessageRole.assistant,
+            content: accumulatedText,
+            createdAt: DateTime.now(),
+          ); // 🔹 Emitimos el mensaje acumulado
+        }
       }
     } catch (e) {
       throw 'An error occurred';
