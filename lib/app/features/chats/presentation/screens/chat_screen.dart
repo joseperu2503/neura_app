@@ -8,6 +8,7 @@ import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_message.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
+import 'package:neura_app/app/features/chats/presentation/widgets/pulse_on_tap.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/user_message.dart';
 import 'package:neura_app/app/shared/plugins/snackbar/index.dart';
 import 'package:neura_app/service_locator.dart';
@@ -253,42 +254,48 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           if (_chat != null)
             Expanded(
-              child: CustomScrollView(
-                controller: _scrollController,
-                physics: _scrollPhysics,
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      top: 24,
-                      bottom: 24,
-                    ),
-                    sliver: SliverList.separated(
-                      itemBuilder: (context, index) {
-                        final message = _chat!.messages[index];
-                        if (message.role == 'user') {
-                          return UserMessage(
-                            content: _chat!.messages[index].content,
-                          );
-                        }
+              child: PulseOnTap(
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  physics: _scrollPhysics,
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 24,
+                        bottom: 24,
+                      ),
+                      sliver: SliverList.separated(
+                        itemBuilder: (context, index) {
+                          final message = _chat!.messages[index];
+                          if (message.role == 'user') {
+                            return UserMessage(
+                              content: _chat!.messages[index].content,
+                            );
+                          }
 
-                        return AssistantMessage(content: message.content);
-                      },
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(height: 24);
-                      },
-                      itemCount: _chat!.messages.length,
-                    ),
-                  ),
-                  if (_completionLoading)
-                    const SliverPadding(
-                      padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                      sliver: SliverToBoxAdapter(
-                        child: Row(children: [AssistantTyping()]),
+                          return AssistantMessage(content: message.content);
+                        },
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(height: 24);
+                        },
+                        itemCount: _chat!.messages.length,
                       ),
                     ),
-                ],
+                    if (_completionLoading)
+                      const SliverPadding(
+                        padding: EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          bottom: 16,
+                        ),
+                        sliver: SliverToBoxAdapter(
+                          child: Row(children: [AssistantTyping()]),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           Container(
