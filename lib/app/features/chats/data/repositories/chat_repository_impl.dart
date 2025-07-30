@@ -1,6 +1,7 @@
 import 'package:neura_app/app/features/chats/data/datasources/chat_datasource_impl.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
+import 'package:neura_app/app/features/chats/domain/models/feedback_type.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
@@ -27,23 +28,17 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<void> approveMessage({
+  Future<void> feedbackMessage({
     required String chatId,
     required String messageId,
+    required FeedbackType? feedbackType,
+    required String description,
   }) {
-    return datasource.approveMessage(chatId: chatId, messageId: messageId);
-  }
-
-  @override
-  Future<void> disapproveMessage({
-    required String chatId,
-    required String messageId,
-    required String reason,
-  }) {
-    return datasource.disapproveMessage(
+    return datasource.feedbackMessage(
       chatId: chatId,
       messageId: messageId,
-      reason: reason,
+      feedbackType: feedbackType,
+      description: description,
     );
   }
 }

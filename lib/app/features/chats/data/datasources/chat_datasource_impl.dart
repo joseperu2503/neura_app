@@ -6,6 +6,7 @@ import 'package:neura_app/app/features/chats/data/dto/chat.dto.dart';
 import 'package:neura_app/app/features/chats/data/mappers/chat.mapper.dart';
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
+import 'package:neura_app/app/features/chats/domain/models/feedback_type.dart';
 
 abstract class ChatDatasource {
   Future<Chat> createChat();
@@ -14,15 +15,11 @@ abstract class ChatDatasource {
 
   Future<Chat> getChat({required String chatId});
 
-  Future<void> approveMessage({
+  Future<void> feedbackMessage({
     required String chatId,
     required String messageId,
-  });
-
-  Future<void> disapproveMessage({
-    required String chatId,
-    required String messageId,
-    required String reason,
+    required FeedbackType? feedbackType,
+    required String description,
   });
 }
 
@@ -101,29 +98,28 @@ class ChatDatasourceImpl implements ChatDatasource {
   }
 
   @override
-  Future<void> approveMessage({
+  Future<void> feedbackMessage({
     required String chatId,
     required String messageId,
+    required FeedbackType? feedbackType,
+    required String description,
   }) async {
-    try {
-      final data = {"chatId": chatId, "messageId": messageId};
-
-      await dio.post('/chats/approve', data: data);
-    } catch (e) {
-      throw 'An error occurred';
+    String? feedbackTypeString;
+    if (feedbackType == FeedbackType.good) {
+      feedbackTypeString = 'GOOD';
+    } else if (feedbackType == FeedbackType.bad) {
+      feedbackTypeString = 'BAD';
     }
-  }
 
-  @override
-  Future<void> disapproveMessage({
-    required String chatId,
-    required String messageId,
-    required String reason,
-  }) async {
     try {
-      final data = {"chatId": chatId, "messageId": messageId, "reason": reason};
+      final data = {
+        "chatId": chatId,
+        "messageId": messageId,
+        "feedbackType": feedbackTypeString,
+        "feedbackDescription": description,
+      };
 
-      await dio.post('/chats/disapprove', data: data);
+      await dio.post('/chats/message-feedback', data: data);
     } catch (e) {
       throw 'An error occurred';
     }

@@ -267,7 +267,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       sliver: SliverList.separated(
                         itemBuilder: (context, index) {
                           final message = _chat!.messages[index];
-                          if (message.role == 'user') {
+                          if (message.role == MessageRole.user) {
                             return UserMessage(
                               content: _chat!.messages[index].content,
                             );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:neura_app/app/core/theme/app_colors.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
+import 'package:neura_app/app/features/chats/domain/models/feedback_type.dart';
 import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
 import 'package:neura_app/app/features/chats/presentation/functions/show_assistant_message_menu.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/feedback_bottom_sheet.dart';
@@ -24,18 +25,28 @@ class AssistantMessage extends StatefulWidget {
 class _AssistantMessageState extends State<AssistantMessage> {
   final ChatRepository _repository = sl<ChatRepository>();
 
-  openDislikeModal(BuildContext context) async {
-    final String feedback = await showModalBottomSheet(
+  _openDislikeModal(BuildContext context) async {
+    final String feedbackDescription = await showModalBottomSheet(
       context: context,
       builder: (context) {
         return const FeedbackBottomSheet();
       },
     );
 
-    _repository.disapproveMessage(
+    _repository.feedbackMessage(
       chatId: widget.chatId,
       messageId: widget.message.id,
-      reason: feedback,
+      feedbackType: FeedbackType.bad,
+      description: feedbackDescription,
+    );
+  }
+
+  _approveMessage() async {
+    _repository.feedbackMessage(
+      chatId: widget.chatId,
+      messageId: widget.message.id,
+      feedbackType: FeedbackType.good,
+      description: '',
     );
   }
 
@@ -46,9 +57,12 @@ class _AssistantMessageState extends State<AssistantMessage> {
         showAssistanMessageMenu(
           context: context,
           position: details.globalPosition,
-          goodResponse: () {},
+          message: widget.message,
+          goodResponse: () {
+            _approveMessage();
+          },
           badResponse: () {
-            openDislikeModal(context);
+            _openDislikeModal(context);
           },
         );
       },

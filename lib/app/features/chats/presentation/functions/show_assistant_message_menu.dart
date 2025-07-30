@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
+import 'package:neura_app/app/features/chats/domain/models/feedback_type.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/animated_menu.dart';
 
 void showAssistanMessageMenu({
@@ -6,6 +8,7 @@ void showAssistanMessageMenu({
   required Offset position,
   required void Function() goodResponse,
   required void Function() badResponse,
+  required Message message,
 }) {
   OverlayEntry? menuOverlay;
 
@@ -71,7 +74,10 @@ void showAssistanMessageMenu({
           options: [
             MenuOption(
               text: "Good Response",
-              icon: "like",
+              icon:
+                  message.feedbackType == FeedbackType.good
+                      ? "like-solid"
+                      : "like",
               onTap: () {
                 menuOverlay?.remove();
                 goodResponse();
@@ -79,7 +85,10 @@ void showAssistanMessageMenu({
             ),
             MenuOption(
               text: "Bad Response",
-              icon: "dislike",
+              icon:
+                  message.feedbackType == FeedbackType.bad
+                      ? "dislike-solid"
+                      : "dislike",
               onTap: () {
                 menuOverlay?.remove();
                 badResponse();

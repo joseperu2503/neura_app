@@ -1,5 +1,6 @@
 import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
+import 'package:neura_app/app/features/chats/domain/models/feedback_type.dart';
 
 abstract class ChatRepository {
   Future<Chat> createChat();
@@ -8,14 +9,10 @@ abstract class ChatRepository {
 
   Future<Chat> getChat({required String chatId});
 
-  Future<void> approveMessage({
+  Future<void> feedbackMessage({
     required String chatId,
     required String messageId,
-  });
-
-  Future<void> disapproveMessage({
-    required String chatId,
-    required String messageId,
-    required String reason,
+    required FeedbackType? feedbackType,
+    required String description,
   });
 }

@@ -44,34 +44,34 @@ class MessageDto {
   final String role;
   final String content;
   final DateTime createdAt;
-  final bool approved;
-  final bool disapproved;
   final String id;
+  final String? feedbackDescription;
+  final String? feedbackType;
 
   MessageDto({
     required this.role,
     required this.content,
     required this.createdAt,
-    required this.approved,
-    required this.disapproved,
     required this.id,
+    this.feedbackDescription,
+    this.feedbackType,
   });
 
   factory MessageDto.fromJson(Map<String, dynamic> json) => MessageDto(
     role: json["role"],
     content: json["content"],
     createdAt: DateTime.parse(json["createdAt"]),
-    approved: json["approved"],
-    disapproved: json["disapproved"],
     id: json["_id"],
+    feedbackDescription: json["feedbackDescription"],
+    feedbackType: json["feedbackType"],
   );
 
   Map<String, dynamic> toJson() => {
     "role": role,
     "content": content,
     "createdAt": createdAt.toIso8601String(),
-    "approved": approved,
-    "disapproved": disapproved,
     "_id": id,
+    "feedbackDescription": feedbackDescription,
+    "feedbackType": feedbackType,
   };
 }
