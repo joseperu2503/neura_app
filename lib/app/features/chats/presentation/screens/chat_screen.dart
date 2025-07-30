@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:neura_app/app/core/models/loading_status.dart';
 import 'package:neura_app/app/core/storage/storage_keys.dart';
 import 'package:neura_app/app/core/storage/storage_service.dart';
 import 'package:neura_app/app/core/theme/app_colors.dart';
-import 'package:neura_app/app/features/chats/domain/entities/chat.entity.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
-import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
+import 'package:neura_app/app/features/chats/presentation/blocs/chat/chat_cubit.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_message.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/pulse_on_tap.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/user_message.dart';
-import 'package:neura_app/app/shared/plugins/snackbar/index.dart';
 import 'package:neura_app/service_locator.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -21,14 +21,10 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final ChatRepository _repository = sl<ChatRepository>();
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _createChatLoading = false;
-  bool _completionLoading = false;
-  ScrollPhysics _scrollPhysics = const NeverScrollableScrollPhysics();
 
-  Chat? _chat;
+  ScrollPhysics _scrollPhysics = const NeverScrollableScrollPhysics();
 
   final _storageService = sl<StorageService>();
 
@@ -49,100 +45,97 @@ class _ChatScreenState extends State<ChatScreen> {
       StorageKeys.chatId,
     );
 
+    print(chatId);
+
     if (chatId == null) return;
+    if (mounted) {
+      context.read<ChatCubit>().selectChat(chatId: chatId);
 
-    try {
-      _chat = await _repository.getChat(chatId: chatId);
-    } catch (e) {
-      SnackbarService.show(e.toString(), type: SnackbarType.error);
+      context.read<ChatCubit>().getChat(chatId: chatId);
     }
 
-    setState(() {
-      _chat = _chat;
-    });
-
-    _scrollToBottom();
+    // _scrollToBottom();
   }
 
-  completion() async {
-    final String content = _textController.text.trim();
+  // completion() async {
+  //   final String content = _textController.text.trim();
 
-    if (_chat == null) {
-      setState(() {
-        _createChatLoading = true;
-      });
+  //   if (_chat == null) {
+  //     setState(() {
+  //       _createChatLoading = true;
+  //     });
 
-      try {
-        _chat = await _repository.createChat();
-      } catch (e) {
-        setState(() {
-          _createChatLoading = false;
-        });
-        SnackbarService.show(e.toString(), type: SnackbarType.error);
-      }
+  //     try {
+  //       _chat = await _repository.createChat();
+  //     } catch (e) {
+  //       setState(() {
+  //         _createChatLoading = false;
+  //       });
+  //       SnackbarService.show(e.toString(), type: SnackbarType.error);
+  //     }
 
-      _storageService.set(StorageKeys.chatId, _chat!.id);
+  //     _storageService.set(StorageKeys.chatId, _chat!.id);
 
-      setState(() {
-        _createChatLoading = false;
-      });
-    }
+  //     setState(() {
+  //       _createChatLoading = false;
+  //     });
+  //   }
 
-    setState(() {
-      _completionLoading = true;
+  //   setState(() {
+  //     _completionLoading = true;
 
-      _textController.text = '';
-      _chat = _chat!.copyWith(
-        messages: [
-          ..._chat!.messages,
-          Message(
-            id: DateTime.now().toString(),
-            role: MessageRole.user,
-            content: content,
-            createdAt: DateTime.now(),
-          ),
-        ],
-      );
-    });
+  //     _textController.text = '';
+  //     _chat = _chat!.copyWith(
+  //       messages: [
+  //         ..._chat!.messages,
+  //         Message(
+  //           id: DateTime.now().toString(),
+  //           role: MessageRole.user,
+  //           content: content,
+  //           createdAt: DateTime.now(),
+  //         ),
+  //       ],
+  //     );
+  //   });
 
-    _scrollToBottom();
+  //   _scrollToBottom();
 
-    _repository
-        .completion(chatId: _chat!.id, content: content)
-        .listen(
-          (chunk) {
-            _addMessage(message: chunk, pop: !_completionLoading);
+  //   _repository
+  //       .completion(chatId: _chat!.id, content: content)
+  //       .listen(
+  //         (chunk) {
+  //           _addMessage(message: chunk, pop: !_completionLoading);
 
-            if (_completionLoading) {
-              setState(() {
-                _completionLoading = false;
-              });
-            }
-          },
-          onDone: () {
-            setState(() {
-              _completionLoading = false;
-            });
-          },
-          onError: (e) {
-            SnackbarService.show(e.toString(), type: SnackbarType.error);
-          },
-        );
-  }
+  //           if (_completionLoading) {
+  //             setState(() {
+  //               _completionLoading = false;
+  //             });
+  //           }
+  //         },
+  //         onDone: () {
+  //           setState(() {
+  //             _completionLoading = false;
+  //           });
+  //         },
+  //         onError: (e) {
+  //           SnackbarService.show(e.toString(), type: SnackbarType.error);
+  //         },
+  //       );
+  // }
 
-  void _addMessage({required Message message, bool pop = false}) {
-    setState(() {
-      if (pop && _chat!.messages.isNotEmpty) {
-        _chat = _chat!.copyWith(
-          messages: List.from(_chat!.messages)..removeLast(),
-        );
-      }
+  // void _addMessage({required Message message, bool pop = false}) {
+  //   setState(() {
+  //     if (pop && _chat!.messages.isNotEmpty) {
+  //       _chat = _chat!.copyWith(
+  //         messages: List.from(_chat!.messages)..removeLast(),
+  //       );
+  //     }
 
-      _chat = _chat!.copyWith(messages: [..._chat!.messages, message]);
-    });
+  //     _chat = _chat!.copyWith(messages: [..._chat!.messages, message]);
+  //   });
 
-    _scrollToBottom();
-  }
+  //   _scrollToBottom();
+  // }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -164,14 +157,21 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void newChat() {
     setState(() {
-      _chat = null;
       _textController.text = '';
       _storageService.remove(StorageKeys.chatId);
     });
+    context.read<ChatCubit>().newChat();
+  }
+
+  completion() {
+    context.read<ChatCubit>().completion(content: _textController.text.trim());
   }
 
   @override
   Widget build(BuildContext context) {
+    final chatState = context.watch<ChatCubit>().state;
+    final chat = chatState.chat;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.dark1,
@@ -212,7 +212,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          if (_chat == null)
+          if (chat == null)
             Expanded(
               child: Center(
                 child: Column(
@@ -250,7 +250,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-          if (_chat != null)
+          if (chat != null)
             Expanded(
               child: PulseOnTap(
                 child: CustomScrollView(
@@ -266,25 +266,25 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       sliver: SliverList.separated(
                         itemBuilder: (context, index) {
-                          final message = _chat!.messages[index];
+                          final message = chat.messages[index];
                           if (message.role == MessageRole.user) {
                             return UserMessage(
-                              content: _chat!.messages[index].content,
+                              content: chat.messages[index].content,
                             );
                           }
 
                           return AssistantMessage(
                             message: message,
-                            chatId: _chat!.id,
+                            chatId: chat.id,
                           );
                         },
                         separatorBuilder: (context, index) {
                           return const SizedBox(height: 24);
                         },
-                        itemCount: _chat!.messages.length,
+                        itemCount: chat.messages.length,
                       ),
                     ),
-                    if (_completionLoading)
+                    if (chatState.completionLoading == LoadingStatus.loading)
                       const SliverPadding(
                         padding: EdgeInsets.only(
                           left: 16,
@@ -358,8 +358,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             return TextButton(
                               onPressed:
                                   !textValid ||
-                                          _createChatLoading ||
-                                          _completionLoading
+                                          chatState.createChatLoading ==
+                                              LoadingStatus.loading ||
+                                          chatState.completionLoading ==
+                                              LoadingStatus.loading
                                       ? null
                                       : () {
                                         completion();
@@ -371,7 +373,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                 padding: EdgeInsets.zero,
                               ),
                               child:
-                                  _createChatLoading
+                                  chatState.createChatLoading ==
+                                          LoadingStatus.loading
                                       ? const SizedBox(
                                         width: 16,
                                         height: 16,

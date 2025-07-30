@@ -6,6 +6,7 @@ import 'package:neura_app/app/features/auth/domain/usecases/guest_register.dart'
 import 'package:neura_app/app/features/auth/domain/usecases/is_loggued_in.dart';
 import 'package:neura_app/app/features/auth/domain/usecases/logout.dart';
 import 'package:neura_app/app/features/auth/presentation/blocs/auth/auth_bloc.dart';
+import 'package:neura_app/app/features/chats/presentation/blocs/chat/chat_cubit.dart';
 import 'package:neura_app/app/shared/plugins/snackbar/providers/snackbar_provider.dart';
 import 'package:neura_app/service_locator.dart';
 
@@ -25,12 +26,14 @@ class _AppState extends State<App> {
       providers: [
         BlocProvider(
           lazy: false,
-          create: (context) => AuthBloc(
-            sl<GuestRegisterUseCase>(),
-            sl<IsLogguedInUseCase>(),
-            sl<LogoutUseCase>(),
-          ),
+          create:
+              (context) => AuthBloc(
+                sl<GuestRegisterUseCase>(),
+                sl<IsLogguedInUseCase>(),
+                sl<LogoutUseCase>(),
+              ),
         ),
+        BlocProvider(create: (context) => ChatCubit()),
       ],
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -47,9 +50,7 @@ class _AppState extends State<App> {
             routeInformationProvider:
                 _routerManager.router.routeInformationProvider,
             builder: (context, child) {
-              return SnackbarProvider(
-                child: child!,
-              );
+              return SnackbarProvider(child: child!);
             },
           );
         },
