@@ -46,97 +46,13 @@ class _ChatScreenState extends State<ChatScreen> {
       StorageKeys.chatId,
     );
 
-    print(chatId);
-
     if (chatId == null) return;
     if (mounted) {
       context.read<ChatCubit>().selectChat(chatId: chatId);
 
       context.read<ChatCubit>().getChat(chatId: chatId);
     }
-
-    // _scrollToBottom();
   }
-
-  // completion() async {
-  //   final String content = _textController.text.trim();
-
-  //   if (_chat == null) {
-  //     setState(() {
-  //       _createChatLoading = true;
-  //     });
-
-  //     try {
-  //       _chat = await _repository.createChat();
-  //     } catch (e) {
-  //       setState(() {
-  //         _createChatLoading = false;
-  //       });
-  //       SnackbarService.show(e.toString(), type: SnackbarType.error);
-  //     }
-
-  //     _storageService.set(StorageKeys.chatId, _chat!.id);
-
-  //     setState(() {
-  //       _createChatLoading = false;
-  //     });
-  //   }
-
-  //   setState(() {
-  //     _completionLoading = true;
-
-  //     _textController.text = '';
-  //     _chat = _chat!.copyWith(
-  //       messages: [
-  //         ..._chat!.messages,
-  //         Message(
-  //           id: DateTime.now().toString(),
-  //           role: MessageRole.user,
-  //           content: content,
-  //           createdAt: DateTime.now(),
-  //         ),
-  //       ],
-  //     );
-  //   });
-
-  //   _scrollToBottom();
-
-  //   _repository
-  //       .completion(chatId: _chat!.id, content: content)
-  //       .listen(
-  //         (chunk) {
-  //           _addMessage(message: chunk, pop: !_completionLoading);
-
-  //           if (_completionLoading) {
-  //             setState(() {
-  //               _completionLoading = false;
-  //             });
-  //           }
-  //         },
-  //         onDone: () {
-  //           setState(() {
-  //             _completionLoading = false;
-  //           });
-  //         },
-  //         onError: (e) {
-  //           SnackbarService.show(e.toString(), type: SnackbarType.error);
-  //         },
-  //       );
-  // }
-
-  // void _addMessage({required Message message, bool pop = false}) {
-  //   setState(() {
-  //     if (pop && _chat!.messages.isNotEmpty) {
-  //       _chat = _chat!.copyWith(
-  //         messages: List.from(_chat!.messages)..removeLast(),
-  //       );
-  //     }
-
-  //     _chat = _chat!.copyWith(messages: [..._chat!.messages, message]);
-  //   });
-
-  //   _scrollToBottom();
-  // }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -218,40 +134,63 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           if (chat == null)
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset('assets/icons/neura.svg', width: 40),
-                        const SizedBox(width: 8),
-                        const Text(
-                          "Hi, I'm Neura.",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white,
-                            height: 32 / 24,
-                            leadingDistribution: TextLeadingDistribution.even,
+            MultiBlocListener(
+              listeners: [
+                BlocListener<ChatCubit, ChatState>(
+                  listener: (context, state) {
+                    _storageService.set(StorageKeys.chatId, state.chatId);
+                  },
+                  listenWhen: (previous, current) {
+                    return previous.createChatLoading ==
+                            LoadingStatus.loading &&
+                        current.createChatLoading == LoadingStatus.success;
+                  },
+                ),
+                BlocListener<ChatCubit, ChatState>(
+                  listener: (context, state) {
+                    _scrollToBottom();
+                  },
+                  listenWhen: (previous, current) {
+                    return previous.getChatLoading == LoadingStatus.loading &&
+                        current.getChatLoading == LoadingStatus.success;
+                  },
+                ),
+              ],
+              child: Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset('assets/icons/neura.svg', width: 40),
+                          const SizedBox(width: 8),
+                          const Text(
+                            "Hi, I'm Neura.",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.white,
+                              height: 32 / 24,
+                              leadingDistribution: TextLeadingDistribution.even,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      "How can I help you today?",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.dark9,
-                        height: 1.5,
-                        leadingDistribution: TextLeadingDistribution.even,
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      const Text(
+                        "How can I help you today?",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.dark9,
+                          height: 1.5,
+                          leadingDistribution: TextLeadingDistribution.even,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -12,10 +12,18 @@ class ChatCubit extends Cubit<ChatState> {
 
   ChatCubit() : super(const ChatState());
 
-  Future<void> getChat({required String chatId}) async {
-    final chat = await _repository.getChat(chatId: chatId);
+  getChat({required String chatId}) async {
+    emit(state.copyWith(getChatLoading: LoadingStatus.loading));
 
-    emit(state.copyWith(chats: [chat]));
+    try {
+      final chat = await _repository.getChat(chatId: chatId);
+
+      emit(
+        state.copyWith(chats: [chat], getChatLoading: LoadingStatus.success),
+      );
+    } catch (e) {
+      emit(state.copyWith(getChatLoading: LoadingStatus.error));
+    }
   }
 
   feedbackMessage({
@@ -59,10 +67,10 @@ class ChatCubit extends Cubit<ChatState> {
   completion({required String content}) async {
     if (state.chatId == null) {
       emit(state.copyWith(createChatLoading: LoadingStatus.loading));
-
       try {
         final chat = await _repository.createChat();
         final chats = [...state.chats, chat];
+
         emit(
           state.copyWith(
             createChatLoading: LoadingStatus.success,
@@ -72,6 +80,7 @@ class ChatCubit extends Cubit<ChatState> {
         );
       } catch (e) {
         emit(state.copyWith(createChatLoading: LoadingStatus.error));
+        return;
       }
     }
 
