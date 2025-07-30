@@ -231,6 +231,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             return AssistantMessage(
                               message: message,
                               chatId: chat.id,
+                              showButtons:
+                                  chatState.chat?.messages.length ==
+                                      index + 1 &&
+                                  message.isComplete == true,
                             );
                           },
                           separatorBuilder: (context, index) {

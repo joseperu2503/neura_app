@@ -9,6 +9,7 @@ class Message extends Equatable {
   final DateTime createdAt;
   final FeedbackType? feedbackType;
   final String? feedbackDescription;
+  final bool isComplete;
 
   const Message({
     required this.id,
@@ -17,6 +18,7 @@ class Message extends Equatable {
     required this.createdAt,
     this.feedbackType,
     this.feedbackDescription = '',
+    this.isComplete = true,
   });
 
   @override
@@ -27,6 +29,7 @@ class Message extends Equatable {
     createdAt,
     feedbackType,
     feedbackDescription,
+    isComplete,
   ];
 
   Message copyWith({
@@ -36,6 +39,7 @@ class Message extends Equatable {
     DateTime? createdAt,
     ValueGetter<FeedbackType?>? feedbackType,
     String? feedbackDescription,
+    bool? isComplete,
   }) {
     return Message(
       id: id ?? this.id,
@@ -44,6 +48,7 @@ class Message extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       feedbackType: feedbackType != null ? feedbackType() : this.feedbackType,
       feedbackDescription: feedbackDescription ?? this.feedbackDescription,
+      isComplete: isComplete ?? this.isComplete,
     );
   }
 }

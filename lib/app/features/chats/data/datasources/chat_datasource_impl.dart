@@ -69,6 +69,14 @@ class ChatDatasourceImpl implements ChatDatasource {
           final json = jsonDecode(dataStr);
 
           messageId = json['messageId'];
+        } else if (decoded == '[DONE]') {
+          yield Message(
+            id: messageId,
+            role: MessageRole.assistant,
+            content: accumulatedText,
+            createdAt: DateTime.now(),
+            isComplete: true,
+          );
         } else {
           accumulatedText += decoded; // 🔹 Concatenamos el nuevo chunk
           yield Message(
@@ -76,6 +84,7 @@ class ChatDatasourceImpl implements ChatDatasource {
             role: MessageRole.assistant,
             content: accumulatedText,
             createdAt: DateTime.now(),
+            isComplete: false,
           ); // 🔹 Emitimos el mensaje acumulado
         }
       }

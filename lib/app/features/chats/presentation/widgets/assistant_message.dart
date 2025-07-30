@@ -14,10 +14,12 @@ class AssistantMessage extends StatefulWidget {
     super.key,
     required this.message,
     required this.chatId,
+    required this.showButtons,
   });
 
   final Message message;
   final String chatId;
+  final bool showButtons;
 
   @override
   State<AssistantMessage> createState() => _AssistantMessageState();
@@ -95,56 +97,60 @@ class _AssistantMessageState extends State<AssistantMessage> {
               leadingDistribution: TextLeadingDistribution.even,
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              SizedBox(
-                width: 32,
-                height: 32,
-                child: TextButton(
-                  onPressed: () {
-                    _approveMessage();
-                  },
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      widget.message.feedbackType == FeedbackType.good
-                          ? "assets/icons/like-solid.svg"
-                          : "assets/icons/like.svg",
-                      width: 20,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.white,
-                        BlendMode.srcIn,
+
+          if (widget.showButtons)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: TextButton(
+                      onPressed: () {
+                        _approveMessage();
+                      },
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          widget.message.feedbackType == FeedbackType.good
+                              ? "assets/icons/like-solid.svg"
+                              : "assets/icons/like.svg",
+                          width: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              SizedBox(
-                width: 32,
-                height: 32,
-                child: TextButton(
-                  onPressed: () {
-                    _disapproveMessage();
-                  },
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      widget.message.feedbackType == FeedbackType.bad
-                          ? "assets/icons/dislike-solid.svg"
-                          : "assets/icons/dislike.svg",
-                      width: 20,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.white,
-                        BlendMode.srcIn,
+                  const SizedBox(width: 16),
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: TextButton(
+                      onPressed: () {
+                        _disapproveMessage();
+                      },
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          widget.message.feedbackType == FeedbackType.bad
+                              ? "assets/icons/dislike-solid.svg"
+                              : "assets/icons/dislike.svg",
+                          width: 20,
+                          colorFilter: const ColorFilter.mode(
+                            AppColors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
         ],
       ),
     );
