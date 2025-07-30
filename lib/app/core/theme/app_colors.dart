@@ -22,4 +22,6 @@ class AppColors {
   static const Color dark9 = Color(0xFFd1d5db);
 
   static const Color primary = Color(0xFF11A575);
+
+  static Color hintText = dark6.withValues(alpha: 0.7);
 }

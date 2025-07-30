@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:neura_app/app/core/theme/app_colors.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
@@ -23,7 +24,7 @@ class AssistantMessage extends StatefulWidget {
 }
 
 class _AssistantMessageState extends State<AssistantMessage> {
-  _openDislikeModal(BuildContext context) async {
+  _disapproveMessage() async {
     final chatCubit = context.read<ChatCubit>();
 
     if (widget.message.feedbackType == FeedbackType.bad) {
@@ -76,19 +77,75 @@ class _AssistantMessageState extends State<AssistantMessage> {
             _approveMessage();
           },
           badResponse: () {
-            _openDislikeModal(context);
+            _disapproveMessage();
           },
         );
       },
-      child: GptMarkdown(
-        widget.message.content,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.white,
-          height: 1.5,
-          leadingDistribution: TextLeadingDistribution.even,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          GptMarkdown(
+            widget.message.content,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              color: AppColors.white,
+              height: 1.5,
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: TextButton(
+                  onPressed: () {
+                    _approveMessage();
+                  },
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      widget.message.feedbackType == FeedbackType.good
+                          ? "assets/icons/like-solid.svg"
+                          : "assets/icons/like.svg",
+                      width: 20,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: TextButton(
+                  onPressed: () {
+                    _disapproveMessage();
+                  },
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      widget.message.feedbackType == FeedbackType.bad
+                          ? "assets/icons/dislike-solid.svg"
+                          : "assets/icons/dislike.svg",
+                      width: 20,
+                      colorFilter: const ColorFilter.mode(
+                        AppColors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

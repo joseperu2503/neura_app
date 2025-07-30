@@ -65,14 +65,14 @@ class _FeedbackBottomSheetState extends State<FeedbackBottomSheet> {
                   bottom: 16,
                 ),
                 filled: true,
-                fillColor: AppColors.dark7,
+                fillColor: AppColors.dark2,
                 hintText:
                     'We apreciate your feedback. Please share any comments or suggestions that you to help us improve.',
-                hintStyle: const TextStyle(
-                  color: AppColors.dark6,
+                hintStyle: TextStyle(
+                  color: AppColors.hintText,
                   fontSize: 16,
                   height: 1.5,
-                  fontWeight: FontWeight.w300,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               minLines: 5,
@@ -96,7 +96,7 @@ class _FeedbackBottomSheetState extends State<FeedbackBottomSheet> {
                 style: TextStyle(
                   color: AppColors.white,
                   fontSize: 16,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),

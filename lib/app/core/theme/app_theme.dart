@@ -15,7 +15,7 @@ class AppTheme {
         backgroundColor: Colors.white,
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: Colors.black12),
+        style: TextButton.styleFrom(foregroundColor: Colors.white24),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

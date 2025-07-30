@@ -69,7 +69,6 @@ class _PulseOnTapState extends State<PulseOnTap>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: _onTapDown,
-      behavior: HitTestBehavior.translucent,
       child: Stack(
         clipBehavior: Clip.none,
         children: [

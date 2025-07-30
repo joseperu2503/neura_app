@@ -280,9 +280,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       height: 1.5,
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(borderSide: BorderSide.none),
-                      contentPadding: EdgeInsets.only(
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.only(
                         left: 0,
                         right: 0,
                         top: 32,
@@ -290,7 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       hintText: 'Ask Neura anything',
                       hintStyle: TextStyle(
-                        color: AppColors.dark6,
+                        color: AppColors.hintText,
                         fontSize: 16,
                         height: 1.5,
                         fontWeight: FontWeight.w400,
