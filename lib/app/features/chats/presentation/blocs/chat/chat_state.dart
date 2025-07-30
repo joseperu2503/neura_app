@@ -24,7 +24,8 @@ class ChatState extends Equatable {
     chatId,
     createChatLoading,
     completionLoading,
-    getChatLoading
+    getChatLoading,
+    chat,
   ];
 
   Chat? get chat {

@@ -32,12 +32,35 @@ class ChatCubit extends Cubit<ChatState> {
     required FeedbackType? feedbackType,
     required String description,
   }) async {
-    await _repository.feedbackMessage(
-      chatId: chatId,
-      messageId: messageId,
-      feedbackType: feedbackType,
-      description: description,
-    );
+    try {
+      await _repository.feedbackMessage(
+        chatId: chatId,
+        messageId: messageId,
+        feedbackType: feedbackType,
+        description: description,
+      );
+
+      final chats =
+          state.chats.map((chat) {
+            if (chat.id == chatId) {
+              final messages =
+                  chat.messages.map((message) {
+                    if (message.id == messageId) {
+                      return message.copyWith(
+                        feedbackType: () => feedbackType,
+                        feedbackDescription: description,
+                      );
+                    }
+                    return message;
+                  }).toList();
+
+              return chat.copyWith(messages: messages);
+            }
+            return chat;
+          }).toList();
+
+      emit(state.copyWith(chats: chats));
+    } catch (e) {}
   }
 
   addMessage({

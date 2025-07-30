@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:neura_app/app/core/theme/app_colors.dart';
 import 'package:neura_app/app/features/chats/domain/entities/message.entity.dart';
 import 'package:neura_app/app/features/chats/domain/models/feedback_type.dart';
-import 'package:neura_app/app/features/chats/domain/repositories/chat_repository.dart';
+import 'package:neura_app/app/features/chats/presentation/blocs/chat/chat_cubit.dart';
 import 'package:neura_app/app/features/chats/presentation/functions/show_assistant_message_menu.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/feedback_bottom_sheet.dart';
-import 'package:neura_app/service_locator.dart';
 
 class AssistantMessage extends StatefulWidget {
   const AssistantMessage({
@@ -23,29 +23,43 @@ class AssistantMessage extends StatefulWidget {
 }
 
 class _AssistantMessageState extends State<AssistantMessage> {
-  final ChatRepository _repository = sl<ChatRepository>();
-
   _openDislikeModal(BuildContext context) async {
-    final String feedbackDescription = await showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return const FeedbackBottomSheet();
-      },
-    );
+    final chatCubit = context.read<ChatCubit>();
 
-    _repository.feedbackMessage(
-      chatId: widget.chatId,
-      messageId: widget.message.id,
-      feedbackType: FeedbackType.bad,
-      description: feedbackDescription,
-    );
+    if (widget.message.feedbackType == FeedbackType.bad) {
+      chatCubit.feedbackMessage(
+        chatId: widget.chatId,
+        messageId: widget.message.id,
+        feedbackType: null,
+        description: "",
+      );
+    } else {
+      final String feedbackDescription = await showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return const FeedbackBottomSheet();
+        },
+      );
+      chatCubit.feedbackMessage(
+        chatId: widget.chatId,
+        messageId: widget.message.id,
+        feedbackType: FeedbackType.bad,
+        description: feedbackDescription,
+      );
+    }
   }
 
   _approveMessage() async {
-    _repository.feedbackMessage(
+    final chatCubit = context.read<ChatCubit>();
+    final feedbackType =
+        widget.message.feedbackType == FeedbackType.good
+            ? null
+            : FeedbackType.good;
+
+    chatCubit.feedbackMessage(
       chatId: widget.chatId,
       messageId: widget.message.id,
-      feedbackType: FeedbackType.good,
+      feedbackType: feedbackType,
       description: '',
     );
   }

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:neura_app/app/features/chats/domain/models/feedback_type.dart';
 
 class Message extends Equatable {
@@ -27,6 +28,24 @@ class Message extends Equatable {
     feedbackType,
     feedbackDescription,
   ];
+
+  Message copyWith({
+    String? id,
+    MessageRole? role,
+    String? content,
+    DateTime? createdAt,
+    ValueGetter<FeedbackType?>? feedbackType,
+    String? feedbackDescription,
+  }) {
+    return Message(
+      id: id ?? this.id,
+      role: role ?? this.role,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      feedbackType: feedbackType != null ? feedbackType() : this.feedbackType,
+      feedbackDescription: feedbackDescription ?? this.feedbackDescription,
+    );
+  }
 }
 
 enum MessageRole { user, assistant }
