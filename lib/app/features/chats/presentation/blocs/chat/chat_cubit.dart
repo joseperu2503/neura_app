@@ -10,7 +10,7 @@ import 'package:neura_app/service_locator.dart';
 class ChatCubit extends Cubit<ChatState> {
   final ChatRepository _repository = sl<ChatRepository>();
 
-  ChatCubit() : super(ChatState());
+  ChatCubit() : super(const ChatState());
 
   Future<void> getChat({required String chatId}) async {
     final chat = await _repository.getChat(chatId: chatId);

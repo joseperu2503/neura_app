@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:neura_app/app/features/chats/domain/models/feedback_type.dart';
 
-class Message {
+class Message extends Equatable {
   final String id;
   final MessageRole role;
   final String content;
@@ -8,7 +9,7 @@ class Message {
   final FeedbackType? feedbackType;
   final String? feedbackDescription;
 
-  Message({
+  const Message({
     required this.id,
     required this.role,
     required this.content,
@@ -16,6 +17,16 @@ class Message {
     this.feedbackType,
     this.feedbackDescription = '',
   });
+
+  @override
+  List<Object?> get props => [
+    id,
+    role,
+    content,
+    createdAt,
+    feedbackType,
+    feedbackDescription,
+  ];
 }
 
 enum MessageRole { user, assistant }
