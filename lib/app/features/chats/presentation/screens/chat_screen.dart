@@ -26,6 +26,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
 
   ScrollPhysics _scrollPhysics = const NeverScrollableScrollPhysics();
+  bool _showButton = false;
 
   final _storageService = sl<StorageService>();
 
@@ -33,6 +34,18 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     getChat();
+
+    _scrollController.addListener(() {
+      final shouldShow =
+          _scrollController.offset <=
+          _scrollController.position.maxScrollExtent - 80;
+
+      if (_showButton != shouldShow) {
+        setState(() {
+          _showButton = shouldShow;
+        });
+      }
+    });
   }
 
   @override
@@ -92,6 +105,10 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final chatState = context.watch<ChatCubit>().state;
     final chat = chatState.chat;
+
+    final isAtBottom =
+        _scrollController.hasClients &&
+        _scrollController.offset == _scrollController.position.maxScrollExtent;
 
     return Scaffold(
       appBar: AppBar(
@@ -196,67 +213,113 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           if (chat != null)
             Expanded(
-              child: MultiBlocListener(
-                listeners: [
-                  BlocListener<ChatCubit, ChatState>(
-                    listener: (context, state) {
-                      _scrollToBottom();
-                    },
-                    listenWhen: (previous, current) {
-                      return previous.chat?.messages != current.chat?.messages;
-                    },
-                  ),
-                ],
-                child: PulseOnTap(
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    physics: _scrollPhysics,
-                    slivers: [
-                      SliverPadding(
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          top: 24,
-                          bottom: 24,
-                        ),
-                        sliver: SliverList.separated(
-                          itemBuilder: (context, index) {
-                            final message = chat.messages[index];
-                            if (message.role == MessageRole.user) {
-                              return UserMessage(
-                                content: chat.messages[index].content,
-                              );
-                            }
+              child: Stack(
+                children: [
+                  MultiBlocListener(
+                    listeners: [
+                      BlocListener<ChatCubit, ChatState>(
+                        listener: (context, state) {
+                          _scrollToBottom();
+                        },
+                        listenWhen: (previous, current) {
+                          return previous.chat?.messages !=
+                                  current.chat?.messages &&
+                              !isAtBottom;
+                        },
+                      ),
+                    ],
+                    child: PulseOnTap(
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics: _scrollPhysics,
+                        slivers: [
+                          SliverPadding(
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                              top: 24,
+                              bottom: 24,
+                            ),
+                            sliver: SliverList.separated(
+                              itemBuilder: (context, index) {
+                                final message = chat.messages[index];
+                                if (message.role == MessageRole.user) {
+                                  return UserMessage(
+                                    content: chat.messages[index].content,
+                                  );
+                                }
 
-                            return AssistantMessage(
-                              message: message,
-                              chatId: chat.id,
-                              showButtons:
-                                  chatState.chat?.messages.length ==
-                                      index + 1 &&
-                                  message.isComplete == true,
-                            );
+                                return AssistantMessage(
+                                  message: message,
+                                  chatId: chat.id,
+                                  showButtons:
+                                      chatState.chat?.messages.length ==
+                                          index + 1 &&
+                                      message.isComplete == true,
+                                );
+                              },
+                              separatorBuilder: (context, index) {
+                                return const SizedBox(height: 24);
+                              },
+                              itemCount: chat.messages.length,
+                            ),
+                          ),
+                          if (chatState.completionLoading ==
+                              LoadingStatus.loading)
+                            const SliverPadding(
+                              padding: EdgeInsets.only(
+                                left: 16,
+                                right: 16,
+                                bottom: 16,
+                              ),
+                              sliver: SliverToBoxAdapter(
+                                child: Row(children: [AssistantTyping()]),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                    right: 16,
+                    bottom:
+                        _showButton ? 16 : -60, // mueve fuera de la pantalla
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 300),
+                      opacity: _showButton ? 1.0 : 0.0,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+
+                        child: TextButton(
+                          onPressed: () {
+                            _scrollToBottom();
                           },
-                          separatorBuilder: (context, index) {
-                            return const SizedBox(height: 24);
-                          },
-                          itemCount: chat.messages.length,
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            backgroundColor: AppColors.dark3,
+                            shape: const CircleBorder(
+                              side: BorderSide(
+                                color: AppColors.dark6,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: SvgPicture.asset(
+                            'assets/icons/arrow-down.svg',
+                            width: 24,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.white,
+                              BlendMode.srcIn,
+                            ),
+                          ),
                         ),
                       ),
-                      if (chatState.completionLoading == LoadingStatus.loading)
-                        const SliverPadding(
-                          padding: EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            bottom: 16,
-                          ),
-                          sliver: SliverToBoxAdapter(
-                            child: Row(children: [AssistantTyping()]),
-                          ),
-                        ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           Container(
