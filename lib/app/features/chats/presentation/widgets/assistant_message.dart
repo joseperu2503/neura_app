@@ -40,7 +40,7 @@ class _AssistantMessageState extends State<AssistantMessage> {
       final String feedbackDescription = await showModalBottomSheet(
         context: context,
         builder: (context) {
-          return const FeedbackBottomSheet();
+          return const FeedbackBottomSheet(title: 'Feedback');
         },
       );
       chatCubit.feedbackMessage(
@@ -50,6 +50,23 @@ class _AssistantMessageState extends State<AssistantMessage> {
         description: feedbackDescription,
       );
     }
+  }
+
+  _reportMessage() async {
+    final chatCubit = context.read<ChatCubit>();
+
+    final String feedbackDescription = await showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return const FeedbackBottomSheet(title: 'Report');
+      },
+    );
+    chatCubit.feedbackMessage(
+      chatId: widget.chatId,
+      messageId: widget.message.id,
+      feedbackType: FeedbackType.bad,
+      description: feedbackDescription,
+    );
   }
 
   _approveMessage() async {
@@ -80,6 +97,9 @@ class _AssistantMessageState extends State<AssistantMessage> {
           },
           badResponse: () {
             _disapproveMessage();
+          },
+          report: () {
+            _reportMessage();
           },
         );
       },
@@ -125,7 +145,7 @@ class _AssistantMessageState extends State<AssistantMessage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 8),
                   SizedBox(
                     width: 32,
                     height: 32,

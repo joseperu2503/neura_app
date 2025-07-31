@@ -8,6 +8,7 @@ void showAssistanMessageMenu({
   required Offset position,
   required void Function() goodResponse,
   required void Function() badResponse,
+  required void Function() report,
   required Message message,
 }) {
   OverlayEntry? menuOverlay;
@@ -92,6 +93,14 @@ void showAssistanMessageMenu({
               onTap: () {
                 menuOverlay?.remove();
                 badResponse();
+              },
+            ),
+            MenuOption(
+              text: "Report",
+              icon: "report",
+              onTap: () {
+                menuOverlay?.remove();
+                report();
               },
             ),
           ],

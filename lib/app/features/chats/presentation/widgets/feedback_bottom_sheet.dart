@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:neura_app/app/core/theme/app_colors.dart';
 
 class FeedbackBottomSheet extends StatefulWidget {
-  const FeedbackBottomSheet({super.key});
+  const FeedbackBottomSheet({super.key, required this.title});
+
+  final String title;
 
   @override
   State<FeedbackBottomSheet> createState() => _FeedbackBottomSheetState();
@@ -33,10 +35,10 @@ class _FeedbackBottomSheetState extends State<FeedbackBottomSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              "Feedback",
+            Text(
+              widget.title,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: AppColors.white,
