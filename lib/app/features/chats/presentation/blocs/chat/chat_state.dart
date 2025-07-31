@@ -9,6 +9,7 @@ class ChatState extends Equatable {
   final LoadingStatus createChatLoading;
   final LoadingStatus completionLoading;
   final LoadingStatus getChatLoading;
+  final LoadingStatus feedbackMessageLoading;
 
   const ChatState({
     this.chats = const [],
@@ -16,6 +17,7 @@ class ChatState extends Equatable {
     this.createChatLoading = LoadingStatus.none,
     this.completionLoading = LoadingStatus.none,
     this.getChatLoading = LoadingStatus.none,
+    this.feedbackMessageLoading = LoadingStatus.none,
   });
 
   @override
@@ -26,6 +28,7 @@ class ChatState extends Equatable {
     completionLoading,
     getChatLoading,
     chat,
+    feedbackMessageLoading,
   ];
 
   Chat? get chat {
@@ -42,6 +45,7 @@ class ChatState extends Equatable {
     LoadingStatus? createChatLoading,
     LoadingStatus? completionLoading,
     LoadingStatus? getChatLoading,
+    LoadingStatus? feedbackMessageLoading,
   }) {
     return ChatState(
       chats: chats ?? this.chats,
@@ -49,6 +53,8 @@ class ChatState extends Equatable {
       createChatLoading: createChatLoading ?? this.createChatLoading,
       completionLoading: completionLoading ?? this.completionLoading,
       getChatLoading: getChatLoading ?? this.getChatLoading,
+      feedbackMessageLoading:
+          feedbackMessageLoading ?? this.feedbackMessageLoading,
     );
   }
 }

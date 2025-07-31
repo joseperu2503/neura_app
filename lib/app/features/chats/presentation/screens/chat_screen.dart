@@ -12,6 +12,7 @@ import 'package:neura_app/app/features/chats/presentation/widgets/assistant_mess
 import 'package:neura_app/app/features/chats/presentation/widgets/assistant_typing.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/pulse_on_tap.dart';
 import 'package:neura_app/app/features/chats/presentation/widgets/user_message.dart';
+import 'package:neura_app/app/shared/plugins/snackbar/index.dart';
 import 'package:neura_app/service_locator.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -217,6 +218,20 @@ class _ChatScreenState extends State<ChatScreen> {
                         listenWhen: (previous, current) {
                           return previous.chat?.messages.lastOrNull !=
                               current.chat?.messages.lastOrNull;
+                        },
+                      ),
+                      BlocListener<ChatCubit, ChatState>(
+                        listener: (context, state) {
+                          SnackbarService.show(
+                            'Feedback submitted',
+                            type: SnackbarType.success,
+                          );
+                        },
+                        listenWhen: (previous, current) {
+                          return previous.feedbackMessageLoading ==
+                                  LoadingStatus.loading &&
+                              current.feedbackMessageLoading ==
+                                  LoadingStatus.success;
                         },
                       ),
                     ],

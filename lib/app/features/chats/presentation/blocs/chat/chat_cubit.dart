@@ -33,6 +33,7 @@ class ChatCubit extends Cubit<ChatState> {
     required String description,
   }) async {
     try {
+      emit(state.copyWith(feedbackMessageLoading: LoadingStatus.loading));
       await _repository.feedbackMessage(
         chatId: chatId,
         messageId: messageId,
@@ -59,8 +60,15 @@ class ChatCubit extends Cubit<ChatState> {
             return chat;
           }).toList();
 
-      emit(state.copyWith(chats: chats));
-    } catch (e) {}
+      emit(
+        state.copyWith(
+          chats: chats,
+          feedbackMessageLoading: LoadingStatus.success,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(feedbackMessageLoading: LoadingStatus.error));
+    }
   }
 
   addMessage({
