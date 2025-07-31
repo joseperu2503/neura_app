@@ -25,7 +25,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  ScrollPhysics _scrollPhysics = const NeverScrollableScrollPhysics();
   bool _showButton = false;
 
   final _storageService = sl<StorageService>();
@@ -70,17 +69,11 @@ class _ChatScreenState extends State<ChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (_scrollController.hasClients) {
-        setState(() {
-          _scrollPhysics = const ClampingScrollPhysics();
-        });
         await _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
         );
-        setState(() {
-          _scrollPhysics = const BouncingScrollPhysics();
-        });
       }
     });
   }
@@ -101,14 +94,14 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  bool get isAtBottom =>
+      _scrollController.hasClients &&
+      _scrollController.offset == _scrollController.position.maxScrollExtent;
+
   @override
   Widget build(BuildContext context) {
     final chatState = context.watch<ChatCubit>().state;
     final chat = chatState.chat;
-
-    final isAtBottom =
-        _scrollController.hasClients &&
-        _scrollController.offset == _scrollController.position.maxScrollExtent;
 
     return Scaffold(
       appBar: AppBar(
@@ -222,16 +215,15 @@ class _ChatScreenState extends State<ChatScreen> {
                           _scrollToBottom();
                         },
                         listenWhen: (previous, current) {
-                          return previous.chat?.messages !=
-                                  current.chat?.messages &&
-                              !isAtBottom;
+                          return previous.chat?.messages.lastOrNull !=
+                              current.chat?.messages.lastOrNull;
                         },
                       ),
                     ],
                     child: PulseOnTap(
                       child: CustomScrollView(
                         controller: _scrollController,
-                        physics: _scrollPhysics,
+                        cacheExtent: 99999,
                         slivers: [
                           SliverPadding(
                             padding: const EdgeInsets.only(
@@ -289,7 +281,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 300),
                       opacity: _showButton ? 1.0 : 0.0,
-                      child: Container(
+                      child: SizedBox(
                         width: 32,
                         height: 32,
 
