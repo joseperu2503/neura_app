@@ -11,9 +11,9 @@ abstract class StorageService {
 class SecureStorageService implements StorageService {
   SecureStorageService();
 
-  static AndroidOptions _getAndroidOptions() => AndroidOptions();
+  static AndroidOptions _getAndroidOptions() => const AndroidOptions();
 
-  static final FlutterSecureStorage _storage = FlutterSecureStorage();
+  static final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   @override
   Future<T?> get<T>(String key) async {
